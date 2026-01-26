@@ -4,10 +4,14 @@ local windowmt = {
     name = "Window",
     hidden = false,
     tabs = {},
+    activetab = nil,
 
     position = vanity.vector(2, 2),
     size = vanity.vector(500, 600),
     accent = vanity.color(92, 122, 219, 255),
+
+    __titleheight = 0,
+    __tabx = 0
 }
 windowmt.__index = windowmt
 vanity.metatables.window = windowmt
@@ -15,9 +19,15 @@ lje.env.auth_metatable(windowmt)
 
 function windowmt:tab(data)
     local tab = setmetatable(data or {}, vanity.metatables.tab)
-    tab.window = self
+    local index = #self.tabs + 1
+    tab.parent = self
+    tab.index = index
 
-    self.tabs[#self.tabs + 1] = tab
+    self.tabs[index] = tab
+
+    if (index == 1) then
+        self.activetab = tab
+    end
 
     return tab
 end
@@ -39,24 +49,29 @@ function windowmt:__render()
 
     local position = self.position
     local size = self.size
+    local name = self.name
 
     local x, y = position[1], position[2]
     local w, h = size[1], size[2]
 
-    vanity.__setcolor(style.outline2)
+    vanity.__setdrawcolor(style.outline2)
     surface.DrawOutlinedRect(x - 2, y - 2, w + 4, h + 4)
 
-    vanity.__setcolor(self.accent)
+    vanity.__setdrawcolor(self.accent)
     surface.DrawOutlinedRect(x - 1, y - 1, w + 2, h + 2)
 
-    vanity.__setcolor(style.background1)
+    vanity.__setdrawcolor(style.background1)
     surface.DrawRect(x, y, w, h)
 
+    surface.SetFont(style.text)
     surface.SetTextPos(x + style.inset1, y + style.inset1)
-    surface.SetTextColor(style.textcolor)
-    surface.DrawText(self.name)
+    vanity.__settextcolor(style.textcolor)
+    surface.DrawText(name)
 
-    vanity.__drawchildren(self.tabs)
+    local _, th = surface.GetTextSize(name)
+    self.__titleheight = th
+    self.__tabx = 0
+    vanity.__drawchildren(self.tabs, self)
 end
 
 function vanity:new(data)

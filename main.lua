@@ -18,6 +18,14 @@ lje.include("modules/render.lua")
 -----------------------------
 
 local testwindow = vanity:new({
-    name = "Test",
+    name = "Vanity",
     position = vanity.vector(600, 450)
+})
+
+local testtab1 = testwindow:tab({
+    name = "Debug1"
+})
+
+local testtab2 = testwindow:tab({
+    name = "Debug2"
 })

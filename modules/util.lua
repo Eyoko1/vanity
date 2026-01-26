@@ -33,19 +33,35 @@ function vanity.font(name, data) --> creates a font with the given name, then re
 end
 
 local surface_SetDrawColor = surface.SetDrawColor
-function vanity.__setcolor(color)
+function vanity.__setdrawcolor(color)
     surface_SetDrawColor(color[1], color[2], color[3], color[4])
 end
 
-function vanity.__drawchildren(children)
+function vanity.__settextcolor(color)
+    surface_SetDrawColor(color[1], color[2], color[3], color[4])
+end
+
+local baseparent = {
+    position = vanity.vector(0, 0),
+    size = vanity.vector(0, 0)
+}
+function vanity.__drawchildren(children, parent)
     local count = #children
     if (count == 0) then
         return
     end
 
+    parent = parent or baseparent
+
+    local position = parent.position or vectorzero
+    local size = parent.size or vectorzero
+
+    local px, py = position[1], position[2]
+    local pw, ph = size[1], size[2]
+
     local i = 1
     ::draw_children::
-    children[i]:__render()
+    children[i]:__render(px, py, pw, ph)
     if (i ~= count) then
         i = i + 1
         goto draw_children

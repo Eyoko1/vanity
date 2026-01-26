@@ -17,5 +17,6 @@ vanity.style = {
     }),
 
     inset1 = 8,
-    inset2 = 4
+    inset2 = 4,
+    tabheight = 16
 }
