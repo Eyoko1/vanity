@@ -16,7 +16,14 @@ vanity.style = {
         outline = true
     }),
 
+    tabtext = vanity.font("tabtext", {
+        font = "Verdana",
+        size = 13,
+        antialias = false,
+        outline = true
+    }),
+
     inset1 = 8,
     inset2 = 4,
-    tabheight = 16
+    tabheight = 26
 }

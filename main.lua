@@ -7,25 +7,15 @@ vanity = {
     }
 }
 
+
 lje.include("modules/util.lua")
 lje.include("modules/style.lua")
 
-lje.include("modules/window.lua")
-lje.include("modules/tab.lua")
+-- Widget files
+lje.include("widgets/window.lua")
+lje.include("widgets/tab.lua")
 
-lje.include("modules/render.lua")
+lje.include("modules/render.lua") 
 
------------------------------
-
-local testwindow = vanity:new({
-    name = "Vanity",
-    position = vanity.vector(600, 450)
-})
-
-local testtab1 = testwindow:tab({
-    name = "Debug1"
-})
-
-local testtab2 = testwindow:tab({
-    name = "Debug2"
-})
+-- Uncomment this to run the example!
+lje.include("example.lua")
