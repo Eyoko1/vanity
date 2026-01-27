@@ -4,6 +4,7 @@ local vanity = vanity
 local tabmt = {
     name = "Tab",
     parent = nil,
+    children = {},
     index = 1
 }
 tabmt.__index = tabmt
@@ -15,6 +16,13 @@ function tabmt:select()
     self.window.activetab = self
 end
 
+-- Internal function used to add a widget to this specific tab - you do not need to manually call this
+function tabmt:__addchild(widget)
+    local children = self.children
+    children[#children + 1] = widget
+end
+
+-- Internal function used to render the tab widget - you do not need to manually call this
 function tabmt:__render(px, py, pw, ph)
     local style = vanity.style
     local inset1 = style.inset1
