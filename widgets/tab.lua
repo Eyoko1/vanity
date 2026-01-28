@@ -46,23 +46,26 @@ function tabmt:__render(px, py, pw, ph)
     surface.DrawOutlinedRect(x - 2, y - 5, w + 4, h + 2)
 
     if (notone) then
-        local yh = (y + h) - 4
-        surface.DrawLine(x - inset1 + 1, yh, x - 2, yh)
+        local yh1 = y + h
+        
+        local yh2 = yh1 - 4
+        surface.DrawLine(x - inset1 + 1, yh2, x - 2, yh2)
+
+        -- Draw the "main outline" around tabs
+        vanity.__setdrawcolor(style.outline1)
+        surface.DrawOutlinedRect(x - 1, y - 4, w + 2, h + 2)
+
+        -- Draw the line between buttons
+        local yh3 = yh1 - 3
+        surface.DrawLine(x - inset1, yh3, x - 1, yh3)
+    else
+        -- Draw the "main outline" around tabs
+        vanity.__setdrawcolor(style.outline1)
+        surface.DrawOutlinedRect(x - 1, y - 4, w + 2, h + 2)
     end
-
-    -- Draw the "main outline" around tabs
-    vanity.__setdrawcolor(style.outline1)
-    surface.DrawOutlinedRect(x - 1, y - 4, w + 2, h + 2)
-
-    -- Draw the line between buttons
-    if (notone) then
-        local yh = (y + h) - 3
-        surface.DrawLine(x - inset1, yh, x - 1, yh)
-    end
-
-    vanity.__setdrawcolor(style.background1)
 
     -- Draw the background behind button
+    vanity.__setdrawcolor(style.background1)
     if (parent.activetab == self) then
         surface.DrawRect(x, y - 3, w, h + 1)
         -- Draw the active line on top of the button

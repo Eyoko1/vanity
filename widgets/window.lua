@@ -99,8 +99,18 @@ function windowmt:__render()
     self.__titleheight = th
     self.__tabx = 0
     vanity.__drawchildren(self.tabs, self)
+end
 
-
+function windowmt:__checkinput()
+    local position = self.position
+    local size = self.size
+    if (vanity.ishovered(position[1], position[2], size[1], size[2])) then
+        -- @TODO: Implement __checkinput on other widgets and check them
+        if (vanity.didclick()) then
+            -- @TODO: Implement dragging - this is temporary
+            return true
+        end
+    end
 end
 
 --- Creates a new window.

@@ -61,11 +61,17 @@ function vanity.__drawchildren(children, parent)
 
     local px, py = position[1], position[2]
     local pw, ph = size[1], size[2]
+    local do_absorb = false
 
     local i = 1
     ::draw_children::
-    children[i]:__render(px, py, pw, ph)
-    if (i ~= count) then
+    local absorb = children[i]:__render(px, py, pw, ph, do_absorb)
+    if (absorb) then
+        do_absorb = true
+    end
+    if (i == count) then
+        return do_absorb
+    else
         i = i + 1
         goto draw_children
     end
