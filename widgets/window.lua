@@ -51,6 +51,10 @@ end
 
 --- Renders the window.
 function windowmt:__render()
+    if (self.hidden) then
+        return
+    end
+
     local style = vanity.style
 
     local position = self.position
@@ -105,14 +109,43 @@ function windowmt:__render()
     vanity.__drawchildren(self.tabs, self)
 end
 
+local dragging = false
+local dragtarget = nil
+local dragx = 0
+local dragy = 0
 function windowmt:__checkinput()
+    if (self.hidden) then
+        return
+    end
+
     local position = self.position
-    local size = self.size
-    if (vanity.ishovered(position[1], position[2], size[1], size[2])) then
-        --- @TODO: Implement __checkinput on other widgets and check them
-        if (vanity.didclick()) then
-            --- @TODO: Implement dragging - this is temporary
+    local x, y = position[1], position[2]
+    if (dragging and dragtarget == self) then
+        if (vanity.mousedown()) then
+            local mx, my = vanity.mousepos()
+            position[1] = mx - dragx
+            position[2] = my - dragy
             return true
+        else
+            dragging = false
+        end
+    end
+
+    local size = self.size
+    if (vanity.ishovered(x, y, size[1], size[2])) then
+        --- @TODO: Implement __checkinput on other widgets and check them
+        if (vanity.__checkchildreninput(self.tabs)) then
+            dragging = false
+            return true
+        else
+            if (vanity.didclick()) then
+                local mx, my = vanity.mousepos()
+                dragx = mx - x
+                dragy = my - y
+                dragging = true
+                dragtarget = self
+                return true
+            end
         end
     end
 end

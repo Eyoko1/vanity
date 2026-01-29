@@ -100,3 +100,22 @@ function vanity.__drawchildren(children, parent)
         goto draw_children
     end
 end
+
+function vanity.__checkchildreninput(children)
+    local count = #children
+    if (count == 0) then
+        return
+    end
+
+    local i = 1
+    ::check_children_input::
+    local child = children[i]
+    local __checkinput = child.__checkinput
+    if (__checkinput and __checkinput(child)) then
+        return true
+    end
+    if (i ~= count) then
+        i = i + 1
+        goto check_children_input
+    end
+end

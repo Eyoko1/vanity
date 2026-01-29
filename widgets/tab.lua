@@ -5,7 +5,12 @@ local tabmt = {
     name = "Tab",
     parent = nil,
     children = {},
-    index = 1
+    index = 1,
+
+    __computedx = 0,
+    __computedy = 0,
+    __computedwidth = 0,
+    __computedheight = 0
 }
 
 tabmt.__index = tabmt
@@ -14,7 +19,7 @@ lje.env.auth_metatable(tabmt)
 
 --- Marks the tab as active.
 function tabmt:select()
-    self.window.activetab = self
+    self.parent.activetab = self
 end
 
 -- Internal function used to add a widget to this specific tab - you do not need to manually call this
@@ -41,12 +46,15 @@ function tabmt:__render(px, py, pw, ph)
     w = math.max(w + 20, 50)
     h = style.tabheight
 
-    local notone = index ~= 1
+    self.__computedx = x
+    self.__computedy = y
+    self.__computedwidth = w
+    self.__computedheight = h
 
     vanity.__setdrawcolor(style.outline2)
     surface.DrawOutlinedRect(x - 2, y - 5, w + 4, h + 2)
 
-    if (notone) then
+    if (index ~= 1) then
         local yh1 = y + h
         
         local yh2 = yh1 - 4
@@ -82,6 +90,17 @@ function tabmt:__render(px, py, pw, ph)
     surface.SetTextPos(x + 10, y + 4)
     vanity.__settextcolor(style.textcolor)
     surface.DrawText(name)
+end
+
+function tabmt:__checkinput()
+    local x = self.__computedx
+    local y = self.__computedy
+    local w = self.__computedwidth
+    local h = self.__computedheight
+    if (vanity.ishovered(x, y, w, h) and vanity.didclick()) then
+        self:select()
+        return true
+    end
 end
 
 --- @TODO: Revamp this?
