@@ -8,6 +8,9 @@ vanity.style = {
     outline2 = vanity.color(0, 0, 0, 255),
 
     textcolor = vanity.color(255, 255, 255, 255),
+    
+    accent = vanity.color(92, 122, 219, 255),
+
 
     text = vanity.font("text", {
         font = "Verdana",

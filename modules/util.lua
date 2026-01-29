@@ -1,5 +1,9 @@
 local vanity = vanity
 
+--- Creates a new vector.
+--- @param x integer
+--- @param y integer
+--- @return vector table
 function vanity.vector(x, y)
     return {
         x or 0,
@@ -7,6 +11,12 @@ function vanity.vector(x, y)
     }
 end
 
+--- Creates a new color.
+--- @param r integer
+--- @param g integer
+--- @param b integer
+--- @param a integer
+--- @return color table
 function vanity.color(r, g, b, a)
     return {
         r,
@@ -18,7 +28,11 @@ end
 
 local fonts = {}
 local fontdata = {}
-function vanity.font(name, data) --> creates a font with the given name, then returns the generated name. if the font already exists, it returns the cached name
+--- creates a font with the given name, then returns the generated name. if the font already exists, it returns the cached name
+--- @param name string
+--- @param data table
+--- @return font table
+function vanity.font(name, data) --> 
     local cached = fonts[name]
     if (cached) then
         return cached
@@ -30,6 +44,22 @@ function vanity.font(name, data) --> creates a font with the given name, then re
     fontdata[id] = data
 
     return id
+end
+
+local materialCache = {}
+--- Creates a material and caches it.
+---@param id string
+---@param materialPath string
+---@return IMaterial
+function vanity.material(id, materialPath)
+    local material = materialCache[id]
+
+    if not material then
+        material = Material(materialPath)
+        materialCache[id] = material
+    end
+
+    return material
 end
 
 local surface_SetDrawColor = surface.SetDrawColor

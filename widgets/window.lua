@@ -8,8 +8,6 @@ local windowmt = {
 
     position = vanity.vector(2, 2),
     size = vanity.vector(500, 600),
-    accent = vanity.color(92, 122, 219, 255),
-
     __titleheight = 0,
     __tabx = 0
 }
@@ -67,7 +65,7 @@ function windowmt:__render()
     surface.DrawOutlinedRect(x - 2, y - 2, w + 4, h + 4)
 
     -- draw the accented outline around the window
-    vanity.__setdrawcolor(self.accent)
+    vanity.__setdrawcolor(style.accent)
     surface.DrawOutlinedRect(x - 1, y - 1, w + 2, h + 2)
 
     -- draw the entire window background
@@ -80,18 +78,24 @@ function windowmt:__render()
     vanity.__settextcolor(style.textcolor)
     surface.DrawText(name)
 
-    -- draw the 4 lines under buttons 
-    -- this is where we render the main content area i guess?
+    -- draw the outline around the main area
     if #self.tabs > 0 then
         local tabStartX = x + style.inset1 - 1
         local tabY = y + self.__titleheight + (style.inset1 * 2) - 2
+        
         vanity.__setdrawcolor(style.outline1)
-
         surface.DrawOutlinedRect(tabStartX, tabY + style.tabheight - 1, w - 15, h - 65)
+        
         vanity.__setdrawcolor(style.outline2)
-
         surface.DrawOutlinedRect(tabStartX - 1, tabY + style.tabheight - 2, w - 13, h - 63)
 
+        --- @TODO: make sure that this main area has some sort of "clipping"
+
+
+    end
+
+    if self.activetab then
+        --- @TODO: Render widgets here!
     end
 
     -- draw the tabs
@@ -105,9 +109,9 @@ function windowmt:__checkinput()
     local position = self.position
     local size = self.size
     if (vanity.ishovered(position[1], position[2], size[1], size[2])) then
-        -- @TODO: Implement __checkinput on other widgets and check them
+        --- @TODO: Implement __checkinput on other widgets and check them
         if (vanity.didclick()) then
-            -- @TODO: Implement dragging - this is temporary
+            --- @TODO: Implement dragging - this is temporary
             return true
         end
     end

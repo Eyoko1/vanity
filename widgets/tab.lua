@@ -7,6 +7,7 @@ local tabmt = {
     children = {},
     index = 1
 }
+
 tabmt.__index = tabmt
 vanity.metatables.tab = tabmt
 lje.env.auth_metatable(tabmt)
@@ -69,7 +70,7 @@ function tabmt:__render(px, py, pw, ph)
     if (parent.activetab == self) then
         surface.DrawRect(x, y - 3, w, h + 1)
         -- Draw the active line on top of the button
-        vanity.__setdrawcolor(parent.accent)
+        vanity.__setdrawcolor(style.accent)
         surface.DrawRect(x, y - 3, w, 1)
     else
         surface.DrawRect(x, y - 3, w, h)
@@ -81,4 +82,42 @@ function tabmt:__render(px, py, pw, ph)
     surface.SetTextPos(x + 10, y + 4)
     vanity.__settextcolor(style.textcolor)
     surface.DrawText(name)
+end
+
+--- @TODO: Revamp this?
+--- Creates a new group.
+--- @param data table
+function tabmt:group(data)
+    -- first, we obtain the parent.. aka the window.
+    local parentSize = self.parent.size
+
+    -- then, we grab the window size..
+    local w, h = parentSize[1], parentSize[2]
+
+    --[[
+        1. We only want to fit two groups per row
+        2. If we switch to a new row, we substract lets say 15px for a gap
+        smth like this: https://files.catbox.moe/ud6ohh.png
+
+        height increases with content amount inside the group
+        case of for example like, 600 width on window, every group gets 242.5 width, and the height depends 
+        on children
+    ]]
+    local _w = (w - 40) / 2 
+    
+    -- by default a empty group should be like, 100 pixel tall.
+    local _h = 100 
+
+    
+    data = data or {}
+    data.size = vanity.vector(_w, _h)
+
+    -- Nice! we discovered width. Now onto height in group.lua
+
+    local group = setmetatable(data, vanity.metatables.group)
+    group.parent = self
+
+    self:__addchild(group)
+
+    return group
 end

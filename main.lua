@@ -7,15 +7,20 @@ vanity = {
     }
 }
 
+function vanity.include(path)
+    lje.con_printf("[$black{Vanity}] including %s", path)
+    lje.include(path)
+end
 
-lje.include("modules/util.lua")
-lje.include("modules/style.lua")
+vanity.include("modules/util.lua")
+vanity.include("modules/style.lua")
 
 -- Widget files
-lje.include("widgets/window.lua")
-lje.include("widgets/tab.lua")
+vanity.include("widgets/window.lua")
+vanity.include("widgets/tab.lua")
+vanity.include("widgets/group.lua")
 
-lje.include("modules/render.lua") 
+vanity.include("modules/render.lua") 
 
 -- Uncomment this to run the example!
-lje.include("example.lua")
+vanity.include("example.lua")
