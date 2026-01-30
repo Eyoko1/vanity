@@ -1,6 +1,6 @@
 local testwindow = vanity:new({
     name = "Vanity",
-    position = vanity.vector(600, 450)
+    position = vanity.vector(200, 200)
 })
 
 local combat = testwindow:tab({
@@ -13,14 +13,16 @@ local visuals = testwindow:tab({
 
 -- we need a way to layout these groups vvvvvvvv
 
---[[
 local group = visuals:group({
     name = "players",
-    position = vanity.vector(615, 513)
 })
 
 local example = visuals:group({
     name = "entities",
-    position = vanity.vector(854, 513)
 })
-]]
+
+for i = 1, 20 do
+    local colorValue = 255 - (i - 1) * (255 - 64) / 19
+    local label = vanity.Label("Label " .. i, vanity.color(colorValue, colorValue, colorValue, 255))
+    example:__addchild(label)
+end

@@ -24,6 +24,7 @@ function windowmt:tab(data)
     local index = #self.tabs + 1
     tab.parent = self
     tab.index = index
+    tab.children = tab.children or {}
 
     self.tabs[index] = tab
 
@@ -100,6 +101,8 @@ function windowmt:__render()
 
     if self.activetab then
         --- @TODO: Render widgets here!
+        --- @TODO: Remember to layout them properly inside main content area.
+        vanity.__drawchildren(self.activetab.children, self)
     end
 
     -- draw the tabs

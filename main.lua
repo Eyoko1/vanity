@@ -20,6 +20,7 @@ vanity.include("modules/input.lua")
 vanity.include("widgets/window.lua")
 vanity.include("widgets/tab.lua")
 vanity.include("widgets/group.lua")
+vanity.include("widgets/label.lua")
 
 vanity.include("modules/render.lua") 
 

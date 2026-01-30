@@ -30,10 +30,17 @@ function groupmt:__render(x, y, w, h)
     local w, h = self.size[1], self.size[2]
     local x, y = self.position[1], self.position[2]
     
-    --[[ draw the background
+    -- Recalculate group height based on actual child sizes
+    self.size[2] = 30  -- header height
+    for i, child in ipairs(self.children) do
+        self.size[2] = self.size[2] + child.size[2] + 5
+    end
+    
+    local w, h = self.size[1], self.size[2]
+
     vanity.__setdrawcolor(style.background1)
     surface.DrawRect(x, y, w, h)
-    ]]
+
 
     -- draw the grey outline 
     vanity.__setdrawcolor(style.outline1)
@@ -51,4 +58,15 @@ function groupmt:__render(x, y, w, h)
         y + 2
     )
 
+    surface.SetFont(style.text)
+    surface.SetTextPos(x + 10, y + 8)
+    vanity.__settextcolor(style.textcolor)
+    surface.DrawText(self.name)
+
+    -- Render children
+    local child_y = y + 30
+    for i, child in ipairs(self.children) do
+        child:__render(x + 10, child_y, w - 20, child.size[2])
+        child_y = child_y + child.size[2] + 5
+    end
 end
