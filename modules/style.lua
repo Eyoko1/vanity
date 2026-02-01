@@ -11,7 +11,6 @@ vanity.style = {
     
     accent = vanity.color(92, 122, 219, 255),
 
-
     text = vanity.font("text", {
         font = "Verdana",
         size = 14,
@@ -30,3 +29,8 @@ vanity.style = {
     inset2 = 4,
     tabheight = 26
 }
+
+function vanity:setstyle(style)
+    -- @TODO: Invalidate all elements when this is called
+    vanity.style = style
+end

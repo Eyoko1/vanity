@@ -27,7 +27,7 @@ end
 
 
 function vanity.Label(text, color)
-    local label = setmetatable({}, labelmt)
+    local label = vanity.__inherit({}, labelmt)
     label.text = text or ""
     label.position = vanity.vector(0, 0)
     label.size = vanity.vector(0, 0)

@@ -20,15 +20,39 @@ function groupmt:__addchild(widget)
 
     -- Now, we obtain child height because groups should size their height with content
     self.size[2] = self.size[2] + widget.size[2]
+    self:__invalidatelayout(false)
+end
+
+function groupmt:__invalidatelayout(recalculatesize)
+    if (recalculatesize ~= false) then
+        local size = self.size
+        size[2] = 100
+
+        local children = self.children
+        local childcount = #children
+        if (childcount ~= 0) then
+            local i = 1
+            ::recalculate_size::
+            size[2] = size[2] + children[i].size[2]
+            if (i ~= childcount) then
+                i = i + 1
+                goto recalculate_size
+            end
+        end
+    end
+    self.parent:__recalculategroups()
 end
 
 --- Internal function used to render the groupmt widget - you do not need to manually call this
 --- @TODO: finish rendering of groups with proper layouting.
-function groupmt:__render(x, y, w, h)
+function groupmt:__render(px, py, pw, ph)
     local style = vanity.style
+    local inset1 = style.inset1
 
     local w, h = self.size[1], self.size[2]
-    local x, y = self.position[1], self.position[2]
+    local windowposition = self.parent.parent.position
+    local x = windowposition[1] + self.position[1] + inset1
+    local y = py + style.tabheight + self.position[2]
     
     -- Recalculate group height based on actual child sizes
     self.size[2] = 30  -- header height
@@ -40,7 +64,6 @@ function groupmt:__render(x, y, w, h)
 
     vanity.__setdrawcolor(style.background1)
     surface.DrawRect(x, y, w, h)
-
 
     -- draw the grey outline 
     vanity.__setdrawcolor(style.outline1)

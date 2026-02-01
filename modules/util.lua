@@ -1,5 +1,8 @@
 local vanity = vanity
 
+local next = next
+local istable = istable
+
 --- Creates a new vector.
 --- @param x integer
 --- @param y integer
@@ -73,24 +76,11 @@ function vanity.__settextcolor(color)
     surface_SetTextColor(color[1], color[2], color[3], color[4])
 end
 
-local baseparent = {
-    position = vanity.vector(0, 0),
-    size = vanity.vector(0, 0)
-}
-
-function vanity.__drawchildren(children, parent)
+function vanity.__drawchildren(children, px, py, pw, ph)
     local count = #children
     if (count == 0) then
         return
     end
-
-    parent = parent or baseparent
-
-    local position = parent.position or vectorzero
-    local size = parent.size or vectorzero
-
-    local px, py = position[1], position[2]
-    local pw, ph = size[1], size[2]
 
     local i = 1
     ::draw_children::
@@ -118,4 +108,48 @@ function vanity.__checkchildreninput(children)
         i = i + 1
         goto check_children_input
     end
+end
+
+function vanity.__invalidatelayouts(children)
+    local count = #children
+    if (count == 0) then
+        return
+    end
+
+    local i = 1
+    ::draw_children::
+    children[i]:__invalidatelayout()
+    if (i ~= count) then
+        i = i + 1
+        goto draw_children
+    end
+end
+
+-- Shallow clone of the value (which is assumed to be a table)
+local function clone(target)
+    local cloned = {}
+    local key, value = next(target)
+    ::clone_table::
+    if (key) then
+        cloned[key] = value
+        key, value = next(target, key)
+        goto clone_table
+    end
+
+    return cloned
+end
+
+function vanity.__inherit(data, metatable)
+    local key, value = next(metatable)
+    ::inherit::
+    if (key) then
+        if (istable(value) and not data[key]) then
+            data[key] = clone(value)
+        end
+
+        key, value = next(metatable, key)
+        goto inherit
+    end
+
+    return setmetatable(data, metatable)
 end

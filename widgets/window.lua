@@ -9,7 +9,8 @@ local windowmt = {
     position = vanity.vector(2, 2),
     size = vanity.vector(500, 600),
     __titleheight = 0,
-    __tabx = 0
+    __sectionstart = 0,
+    __sectionend = 0
 }
 
 windowmt.__index = windowmt
@@ -20,19 +21,37 @@ lje.env.auth_metatable(windowmt)
 --- @param data table
 --- @return data table
 function windowmt:tab(data)
-    local tab = setmetatable(data or {}, vanity.metatables.tab)
-    local index = #self.tabs + 1
+    local tabs = self.tabs
+    local tab = vanity.__inherit(data or {}, vanity.metatables.tab)
+    local index = #tabs + 1
     tab.parent = self
     tab.index = index
     tab.children = tab.children or {}
 
-    self.tabs[index] = tab
+    tabs[index] = tab
 
     if (index == 1) then
         self.activetab = tab
     end
 
+    --tab:__invalidatelayout()
+    vanity.__invalidatelayouts(tabs)
+
     return tab
+end
+
+function windowmt:__invalidatelayout()
+    local style = vanity.style
+    surface.SetFont(style.text)
+    local _, th = surface.GetTextSize(self.name)
+    self.__titleheight = th
+
+    local y = self.position[2]
+    local h = self.size[2]
+
+    local taby = y + th + (style.inset1 * 2) - 2
+    self.__sectionstart = taby + style.tabheight - 1
+    self.__sectionend = self.__sectionstart + (h - 65)
 end
 
 --- Hides the window.
@@ -57,6 +76,8 @@ function windowmt:__render()
     end
 
     local style = vanity.style
+    local inset1 = style.inset1
+    local twoinset1 = inset1 * 2
 
     local position = self.position
     local size = self.size
@@ -64,6 +85,10 @@ function windowmt:__render()
 
     local x, y = position[1], position[2]
     local w, h = size[1], size[2]
+
+    local tabs = self.tabs
+    local tabcount = #tabs
+    local nonzerocount = tabcount ~= 0
 
     -- draw the black outline around the window
     vanity.__setdrawcolor(style.outline2)
@@ -79,37 +104,41 @@ function windowmt:__render()
 
     -- draw the menu text in top left corner
     surface.SetFont(style.text)
-    surface.SetTextPos(x + style.inset1, y + style.inset1)
+    surface.SetTextPos(x + inset1, y + inset1)
     vanity.__settextcolor(style.textcolor)
     surface.DrawText(name)
 
     -- draw the outline around the main area
-    if #self.tabs > 0 then
-        local tabStartX = x + style.inset1 - 1
-        local tabY = y + self.__titleheight + (style.inset1 * 2) - 2
+    if (nonzerocount) then
+        local tabStartX = x + inset1 - 1
+        local tabY = y + self.__titleheight + (twoinset1) - 2
+
+        local __sectionstart = tabY + style.tabheight - 1
+        local __sectionend = __sectionstart + (h - 65)
+        self.__sectionstart = __sectionstart
+        self.__sectionend = __sectionend
         
         vanity.__setdrawcolor(style.outline1)
-        surface.DrawOutlinedRect(tabStartX, tabY + style.tabheight - 1, w - 15, h - 65)
+        surface.DrawOutlinedRect(tabStartX, __sectionstart, w - 15, h - 65)
         
         vanity.__setdrawcolor(style.outline2)
         surface.DrawOutlinedRect(tabStartX - 1, tabY + style.tabheight - 2, w - 13, h - 63)
 
         --- @TODO: make sure that this main area has some sort of "clipping"
-
-
     end
 
-    if self.activetab then
-        --- @TODO: Render widgets here!
-        --- @TODO: Remember to layout them properly inside main content area.
-        vanity.__drawchildren(self.activetab.children, self)
+    -- Draw the tabs
+    if (nonzerocount) then
+        local _, th = surface.GetTextSize(name)
+        self.__titleheight = th
+        local i = 1
+        ::draw_and_align_tabs::
+        tabs[i]:__render(x, y, w, h)
+        if (i ~= tabcount) then
+            i = i + 1
+            goto draw_and_align_tabs
+        end
     end
-
-    -- draw the tabs
-    local _, th = surface.GetTextSize(name)
-    self.__titleheight = th
-    self.__tabx = 0
-    vanity.__drawchildren(self.tabs, self)
 end
 
 local dragging = false
@@ -156,9 +185,11 @@ end
 --- Creates a new window.
 --- @param data table Window data
 --- @return data table
-function vanity:new(data)
-    local window = setmetatable(data or {}, windowmt)
+function vanity:window(data)
+    local window = vanity.__inherit(data or {}, windowmt)
     vanity.windows[#vanity.windows + 1] = window
+
+    window:__invalidatelayout()
 
     return window
 end
