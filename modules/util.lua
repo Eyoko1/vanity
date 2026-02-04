@@ -140,16 +140,30 @@ local function clone(target)
 end
 
 function vanity.__inherit(data, metatable)
+    data.__proto = metatable
+
     local key, value = next(metatable)
     ::inherit::
     if (key) then
-        if (istable(value) and not data[key]) then
-            data[key] = clone(value)
+        if data[key] == nil then
+            if istable(value) then
+                local cloned = {}
+                local k, v = next(value)
+                ::clone::
+                if (k) then
+                    cloned[k] = v
+                    k, v = next(value, k)
+                    goto clone
+                end
+                data[key] = cloned
+            else
+                data[key] = value
+            end
         end
 
         key, value = next(metatable, key)
         goto inherit
     end
 
-    return setmetatable(data, metatable)
+    return data
 end

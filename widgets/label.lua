@@ -3,13 +3,10 @@ local vanity = vanity
 local labelmt = {
     text = "",
     parent = nil,
-
-    position = vanity.vector(0, 0),
-    size = vanity.vector(0, 0),
-
     color = vanity.color(255, 255, 255, 255)
 }
 
+setmetatable(labelmt, {__index = vanity.metatables.base})
 labelmt.__index = labelmt
 vanity.metatables.label = labelmt
 lje.env.auth_metatable(labelmt)
@@ -17,14 +14,11 @@ lje.env.auth_metatable(labelmt)
 function labelmt:__render(x, y, w, h)
     local style = vanity.style
     surface.SetFont(style.text)
-
     self.size[1], self.size[2] = surface.GetTextSize(self.text)
-
-	vanity.__settextcolor(self.color)
-	surface.SetTextPos(x, y)
-	surface.DrawText(self.text)
+    vanity.__settextcolor(self.color)
+    surface.SetTextPos(x, y)
+    surface.DrawText(self.text)
 end
-
 
 function vanity.Label(text, color)
     local label = vanity.__inherit({}, labelmt)

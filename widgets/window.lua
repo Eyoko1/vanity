@@ -13,6 +13,7 @@ local windowmt = {
     __sectionend = 0
 }
 
+setmetatable(windowmt, {__index = vanity.metatables.base})
 windowmt.__index = windowmt
 vanity.metatables.window = windowmt
 lje.env.auth_metatable(windowmt)

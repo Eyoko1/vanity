@@ -16,6 +16,7 @@ local tabmt = {
     __computedheight = 0
 }
 
+setmetatable(tabmt, {__index = vanity.metatables.base})
 tabmt.__index = tabmt
 vanity.metatables.tab = tabmt
 lje.env.auth_metatable(tabmt)

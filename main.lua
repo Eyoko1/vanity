@@ -17,6 +17,8 @@ vanity.include("modules/style.lua")
 vanity.include("modules/input.lua")
 
 -- Widget files
+vanity.include("widgets/base.lua")
+
 vanity.include("widgets/window.lua")
 vanity.include("widgets/tab.lua")
 vanity.include("widgets/group.lua")

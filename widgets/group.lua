@@ -9,6 +9,7 @@ local groupmt = {
     position = vanity.vector(0, 0)
 }
 
+setmetatable(groupmt, {__index = vanity.metatables.base})
 groupmt.__index = groupmt
 vanity.metatables.group = groupmt
 lje.env.auth_metatable(groupmt)
