@@ -196,9 +196,7 @@ function tabmt:__recalculategroups()
     local groupcount = #groups
 
     local window = self.parent
-    local heightthreshold = (window.__sectionend - window.__sectionstart) - inset1 -- @TODO: Calculate this (this is the height of the section)
-
-    print("TEST:", window.__sectionstart, window.__sectionend)
+    local heightthreshold = (window.__sectionend - window.__sectionstart) - inset1
 
     local cumulativex = inset1
     local cumulativey = inset1
@@ -212,7 +210,6 @@ function tabmt:__recalculategroups()
         if (cumulativex == inset1) then
             if (height > heightthreshold) then
                 lje.con_printf(OVERFLOW_FORMAT1, group.name)
-                print(height, heightthreshold, self.parent.size[2])
             else
                 cumulativex = cumulativex + size[1] + inset1
                 cumulativey = inset1
