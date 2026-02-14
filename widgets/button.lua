@@ -2,6 +2,9 @@ local buttonmt = {
     text = "",
     parent = nil,
     halftextwidth = 0,
+    hoverframe = 0,
+
+    callback = function() end,
 
     position = vanity.vector(0, 0),
     size = vanity.vector(0, 0)
@@ -11,11 +14,10 @@ buttonmt.__index = buttonmt
 vanity.metatables.label = buttonmt
 lje.env.auth_metatable(buttonmt)
 
-function vanity.metatables.group:button(text)
-    text = text or ""
-
+function vanity.metatables.group:button(text, callback)
     local button = vanity.__inherit({
-        text = text
+        text = text,
+        callback = callback
     }, buttonmt)
 
     button:__invalidatelayout()
@@ -40,7 +42,11 @@ function buttonmt:__render(x, y, w, h)
     self.__computedwidth = w
     self.__computedheight = h
 
-    vanity.__setdrawcolor(vanity.style.accent)
+    if (self.hoverframe == FrameNumber()) then
+        vanity.__setdrawcolor(vanity.style.accent)
+    else
+        vanity.__setdrawcoloralpha(vanity.style.accent, 155)
+    end
     surface.DrawRect(x, y, w, h)
 
     vanity.__settextcolor(vanity.style.textcolor)
@@ -50,13 +56,18 @@ function buttonmt:__render(x, y, w, h)
 end
 
 function buttonmt:__checkinput()
-    if (vanity.didclick()) then
-        local x = self.__computedx
-        local y = self.__computedy
-        local w = self.__computedwidth
-        local h = self.__computedheight
-        if (vanity.ishovered(x, y, w, h)) then
+    local x = self.__computedx
+    local y = self.__computedy
+    local w = self.__computedwidth
+    local h = self.__computedheight
+    if (vanity.ishovered(x, y, w, h)) then
+        self.hoverframe = FrameNumber()
+        if (vanity.didclick()) then
+            self.callback()
             lje.con_printf("clicked button: '%s'", tostring(self.text))
+            return true
+        elseif (vanity.mousedown()) then
+            return true
         end
     end
 end

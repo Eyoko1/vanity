@@ -15,8 +15,6 @@ vanity.metatables.label = checkboxmt
 lje.env.auth_metatable(checkboxmt)
 
 function vanity.metatables.group:checkbox(text, callback)
-    text = text or ""
-
     local checkbox = vanity.__inherit({
         text = text,
         callback = callback
@@ -30,7 +28,7 @@ end
 function checkboxmt:__invalidatelayout()
     surface.SetFont(vanity.style.text)
     local w, h = surface.GetTextSize(self.text)
-    h = h + 10
+    h = h + 4
 
     self.halftextwidth = w * 0.5
     
@@ -53,28 +51,33 @@ function checkboxmt:__render(x, y, w, h)
 
     vanity.__settextcolor(vanity.style.textcolor)
     surface.SetFont(vanity.style.text)
-    surface.SetTextPos(x + h + 8, y + 5)
+    surface.SetTextPos(x + h + 8, y + 2)
     surface.DrawText(self.text)
 
     if (self.state) then
         vanity.__setdrawcolor(vanity.style.accent)
         surface.SetTexture(blanktexture)
-        surface.DrawTexturedRectRotated(x + 9, y + 16, 8, 3, -45)
-        surface.DrawTexturedRectRotated(x + 16, y + 12, 12, 3, 45)
+        surface.DrawTexturedRectRotated(x + 7, y + 12, 8, 3, -45)
+        surface.DrawTexturedRectRotated(x + 13, y + 9, 10, 3, 45)
     end
 end
 
 function checkboxmt:__checkinput()
     if (vanity.didclick()) then
-        local x = self.__computedx
-        local y = self.__computedy
-        local w = self.__computedwidth
-        local h = self.__computedheight
-        if (vanity.ishovered(x, y, w, h)) then
+        if (vanity.ishovered(self.__computedx, self.__computedy, self.__computedwidth, self.__computedheight)) then
             local state = not self.state
             self.state = state
             self.callback(state)
-            lje.con_printf("toggled checkbox: '%s' = %s", tostring(self.text), toggle)
+            lje.con_printf("toggled checkbox: '%s' = %s", tostring(self.text), state)
+            return true
+        end
+    elseif (vanity.mousedown()) then
+        if (vanity.ishovered(self.__computedx, self.__computedy, self.__computedwidth, self.__computedheight)) then
+            return true
         end
     end
+end
+
+function checkboxmt:getstate()
+    return self.state
 end

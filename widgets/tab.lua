@@ -144,7 +144,7 @@ function tabmt:__checkinput()
         end
     end
 
-    vanity.__checkchildreninput(self.children)
+    return vanity.__checkchildreninput(self.children)
 end
 
 --- @TODO: Revamp this?
@@ -188,55 +188,8 @@ function tabmt:group(data)
     return group
 end
 
-local OVERFLOW_FORMAT1 = "Group '%s' is overflowing due to it's size (type 1); increase the size of the window containing it to fix this."
-local OVERFLOW_FORMAT2 = "Group '%s' is overflowing due to it's size (type 2); increase the size of the window containing it to fix this."
+local OVERFLOW_FORMAT1 = "Group '%s' is overflowing; increase the size of the window containing it to fix this."
 function tabmt:__recalculategroups()
-    local style = vanity.style
-    local inset1 = style.inset1
-
-    local groups = self.children
-    local groupcount = #groups
-
-    local window = self.parent
-    local heightthreshold = (window.__sectionend - window.__sectionstart) - inset1
-
-    local cumulativex = inset1
-    local cumulativey = inset1
-    local i = 1
-    local leftcount = 0
-    local rightcount = 0
-    
-    ::invalidate_group2::
-    local group = groups[i]
-    local position = group.position
-    local size = group.size
-    local height = size[2]
-    if (cumulativey + height > heightthreshold) then
-        if (cumulativex == inset1) then
-            if (height > heightthreshold) then
-                lje.con_printf(OVERFLOW_FORMAT1, group.name)
-            else
-                cumulativex = cumulativex + size[1] + inset1
-                cumulativey = inset1
-                position[1] = cumulativex
-                position[2] = cumulativey
-            end
-        else
-            lje.con_printf(OVERFLOW_FORMAT2, group.name)
-        end
-    else
-        position[1] = cumulativex
-        position[2] = cumulativey
-    end
-
-    if (i ~= groupcount) then
-        cumulativey = cumulativey + height + inset1
-        i = i + 1
-        goto invalidate_group2
-    end
-end
-
-function tabmt:__recalculategroups2()
     local style = vanity.style
     local inset1 = style.inset1
 
@@ -254,8 +207,6 @@ function tabmt:__recalculategroups2()
     local lefty = inset1
     local righty = inset1
 
-    lje.con_print("-----------")
-
     local i = 1
     ::invalidate_group::
     local group = groups[i]
@@ -265,12 +216,10 @@ function tabmt:__recalculategroups2()
 
     local heightinset = height + inset1
     local newleft = lefty + heightinset
-    lje.con_printf("%s: %s, %s, %s", group.name, newleft, heightthreshold, height)
     if (newleft <= heightthreshold) then
         position[1] = leftx
         position[2] = lefty
         lefty = newleft
-        lje.con_printf("    left: %s", group.name)
     else
         local newright = righty + heightinset
         if (newright <= heightthreshold) then

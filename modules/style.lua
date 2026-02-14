@@ -9,7 +9,7 @@ vanity.style = {
 
     textcolor = vanity.color(255, 255, 255, 255),
     
-    accent = vanity.color(92, 122, 219, 255),
+    accent = vanity.color(92, 122, 219, 255), --> editing the alpha is not recommended
 
     text = vanity.font("text", {
         font = "Verdana",

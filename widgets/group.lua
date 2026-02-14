@@ -19,11 +19,39 @@ lje.env.auth_metatable(groupmt)
 -- Internal function used to add a widget to this specific group - you do not need to manually call this
 function groupmt:__addchild(widget)
     local children = self.children
-    children[#children + 1] = widget
+    local childcount = #children
 
-    -- Now, we obtain child height because groups should size their height with content
-    self.size[2] = self.size[2] + widget.size[2]
+    if (childcount == 0) then
+        children[childcount + 1] = self:__internalseparator()
+        childcount = childcount + 1
+    end
+
+    children[childcount + 1] = widget
+
     self:__invalidatelayout(true)
+
+    return widget
+end
+
+function groupmt:__removechild(widget_or_index)
+    local children = self.children
+    local childcount = #children
+    if (isnumber(widget_or_index)) then
+        table.remove(children, widget_or_index)
+    else
+        local i = 1
+        ::remove_child::
+        if (children[i] == widget_or_index) then
+            table.remove(children, i)
+        elseif (i ~= childcount) then
+            i = i + 1
+            goto remove_child
+        end
+    end
+
+    if (childcount == 2) then --> childcount would now be -1, so if it is at 2 here, there is only 1 element which is the separator
+        children[1] = nil --> remove the separator
+    end
 end
 
 function groupmt:__getchildrenheight(base)
@@ -97,7 +125,7 @@ function groupmt:__render(px, py, pw, ph)
     local childcount = #children
     if (childcount > 0) then
         local child_x = x + 10
-        local child_y = y + 30
+        local child_y = y + vanity.fontdata(vanity.style.text).size + 13
         local maxy = child_y + h
         local child_width = w - 20
         local i = 1
@@ -122,7 +150,6 @@ function groupmt:__checkinput()
     local w = size[1]
     local h = size[2]
     if (vanity.ishovered(x, y, w, h)) then
-        vanity.__checkchildreninput(self.children)
-        return true
+        return vanity.__checkchildreninput(self.children)
     end
 end

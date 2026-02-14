@@ -76,6 +76,10 @@ function vanity.__setdrawcolor(color)
     surface_SetDrawColor(color[1], color[2], color[3], color[4])
 end
 
+function vanity.__setdrawcoloralpha(color, alpha)
+    surface_SetDrawColor(color[1], color[2], color[3], alpha)
+end
+
 function vanity.__settextcolor(color)
     surface_SetTextColor(color[1], color[2], color[3], color[4])
 end

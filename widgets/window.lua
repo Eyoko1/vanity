@@ -158,6 +158,11 @@ function windowmt:__checkinput()
             local mx, my = vanity.mousepos()
             position[1] = mx - dragx
             position[2] = my - dragy
+
+            --local time = FrameTime() * 15
+            --position[1] = Lerp(time, position[1], mx - dragx)
+            --position[2] = Lerp(time, position[2], my - dragy)
+
             return true
         else
             dragging = false

@@ -26,6 +26,7 @@ vanity.include("widgets/group.lua")
 vanity.include("widgets/label.lua")
 vanity.include("widgets/button.lua")
 vanity.include("widgets/checkbox.lua")
+vanity.include("widgets/separator.lua")
 
 vanity.include("modules/render.lua") 
 
