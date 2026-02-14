@@ -3,11 +3,11 @@ local testwindow = vanity:window({
     position = vanity.vector(200, 200)
 })
 
-local combat = testwindow:tab({
+local visuals = testwindow:tab({
     name = "Example"
 })
 
-local visuals = testwindow:tab({
+local combat = testwindow:tab({
     name = "Example 2"
 })
 
@@ -21,9 +21,17 @@ local example = visuals:group({
     name = "entities",
 })
 
+local padding = visuals:group({
+    name = "padding",
+})
+
 local example2 = visuals:group({
     name = "test"
 })
+
+group:button("test1")
+group:button("test2")
+group:checkbox("checkbox")
 
 for i = 1, 15 do
     local colorValue = 255 - (i - 1) * (255 - 64) / 19

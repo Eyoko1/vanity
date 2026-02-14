@@ -22,7 +22,10 @@ vanity.include("widgets/base.lua")
 vanity.include("widgets/window.lua")
 vanity.include("widgets/tab.lua")
 vanity.include("widgets/group.lua")
+
 vanity.include("widgets/label.lua")
+vanity.include("widgets/button.lua")
+vanity.include("widgets/checkbox.lua")
 
 vanity.include("modules/render.lua") 
 

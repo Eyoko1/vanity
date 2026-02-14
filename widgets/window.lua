@@ -166,7 +166,6 @@ function windowmt:__checkinput()
 
     local size = self.size
     if (vanity.ishovered(x, y, size[1], size[2])) then
-        --- @TODO: Implement __checkinput on other widgets and check them
         if (vanity.__checkchildreninput(self.tabs)) then
             dragging = false
             return true

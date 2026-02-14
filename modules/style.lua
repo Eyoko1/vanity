@@ -18,6 +18,14 @@ vanity.style = {
         outline = true
     }),
 
+    grouptext = vanity.font("grouptext", {
+        font = "Verdana",
+        size = 14,
+        weight = 400,
+        antialias = false,
+        outline = true
+    }),
+
     tabtext = vanity.font("tabtext", {
         font = "Verdana",
         size = 13,

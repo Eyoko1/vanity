@@ -49,6 +49,10 @@ function vanity.font(name, data) -->
     return id
 end
 
+function vanity.fontdata(id)
+    return fontdata[id]
+end
+
 local materialCache = {}
 --- Creates a material and caches it.
 ---@param id string
