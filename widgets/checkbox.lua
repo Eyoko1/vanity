@@ -81,3 +81,7 @@ end
 function checkboxmt:getstate()
     return self.state
 end
+
+function checkboxmt:setstate(state)
+    self.state = state
+end

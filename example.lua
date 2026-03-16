@@ -70,7 +70,7 @@ local dorainbow = group:checkbox("rainbow accent", function(state)
     
 end)
 group:button("padding", function()
-    vanity.style.accent = vanity.color(math.random(0, 255), math.random(0, 255), math.random(0, 255), 255)
+    
 end)
 
 local rainbowprogress = 0

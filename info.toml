@@ -2,7 +2,7 @@
 
 [script]
 name = "vanity"
-version = "1.0.0"
+version = "1.1.0"
 author = "Eyoko1" # + pngmeow
 url = "https://github.com/Eyoko1/vanity/"
 dependencies = [

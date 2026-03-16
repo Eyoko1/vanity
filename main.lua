@@ -31,4 +31,4 @@ vanity.include("widgets/separator.lua")
 vanity.include("modules/render.lua") 
 
 -- Uncomment this to run the example!
-vanity.include("example.lua")
+--vanity.include("example.lua")
