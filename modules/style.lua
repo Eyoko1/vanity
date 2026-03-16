@@ -11,16 +11,18 @@ vanity.style = {
     
     accent = vanity.color(92, 122, 219, 255), --> editing the alpha is not recommended
 
+    gradient = vanity.color(0, 0, 0, 120),
+
     text = vanity.font("text", {
         font = "Verdana",
-        size = 14,
+        size = 13,
         antialias = false,
         outline = true
     }),
 
     grouptext = vanity.font("grouptext", {
         font = "Verdana",
-        size = 14,
+        size = 13,
         weight = 400,
         antialias = false,
         outline = true
@@ -37,6 +39,13 @@ vanity.style = {
     inset2 = 4,
     tabheight = 26
 }
+
+vanity.materials = {}
+
+---@TODO: Move this somewhere better?
+vanity.materials.gradientdown = vanity.material("gradientdown", "gui/gradient_down")
+vanity.materials.gradientup = vanity.material("gradientup", "gui/gradient_up")
+
 
 function vanity:setstyle(style)
     -- @TODO: Invalidate all elements when this is called

@@ -1,6 +1,6 @@
 local testwindow = vanity:window({
     name = "Vanity",
-    position = vanity.vector(1200, 600)
+    position = vanity.vector((ScrW() - 800 - 300) / 2, (ScrH() - 400) / 2)
 })
 
 local visuals = testwindow:tab({
@@ -88,7 +88,7 @@ group:separator()
 
 for i = 1, 15 do
     local colorValue = 255 - (i - 1) * (255 - 64) / 19
-    local label = vanity.Label("Label " .. i, vanity.color(colorValue, colorValue, colorValue, 255))
+    local label = vanity.Label("Label " .. i, vanity.color(255,255,255, 255))
     group:__addchild(label)
 end
 

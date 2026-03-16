@@ -102,6 +102,11 @@ function windowmt:__render()
     -- draw the entire window background
     vanity.__setdrawcolor(style.background1)
     surface.DrawRect(x, y, w, h)
+        
+    -- gradient down
+    surface.SetMaterial(vanity.materials.gradientdown)
+    vanity.__setdrawcolor(style.gradient)
+    surface.DrawTexturedRect(x, y, w, h)
 
     -- draw the menu text in top left corner
     surface.SetFont(style.text)
@@ -186,6 +191,7 @@ function windowmt:__checkinput()
         end
     end
 end
+
 
 --- Creates a new window.
 --- @param data table Window data

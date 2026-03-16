@@ -106,6 +106,11 @@ function tabmt:__render(px, py, pw, ph)
         surface.DrawOutlinedRect(x - 1, y - 4, w + 2, h + 2)
     end
 
+    -- gradient up
+    surface.SetMaterial(vanity.materials.gradientup)
+    vanity.__setdrawcolor(style.gradient)
+    surface.DrawTexturedRect(x, y - 2, w, h)
+
     -- Draw the background behind button
     vanity.__setdrawcolor(style.background1)
     if (parent.activetab == self) then
@@ -113,6 +118,7 @@ function tabmt:__render(px, py, pw, ph)
         -- Draw the active line on top of the button
         vanity.__setdrawcolor(style.accent)
         surface.DrawRect(x, y - 3, w, 1)
+
 
         -- Render the text
         surface.SetTextPos(x + 10, y + 4)

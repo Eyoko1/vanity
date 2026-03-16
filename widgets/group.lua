@@ -98,6 +98,10 @@ function groupmt:__render(px, py, pw, ph)
 
     vanity.__setdrawcolor(style.background1)
     surface.DrawRect(x, y, w, h)
+    -- gradient up
+    surface.SetMaterial(vanity.materials.gradientup)
+    vanity.__setdrawcolor(style.gradient)
+    surface.DrawTexturedRect(x, y, w, h)
 
     -- draw the grey outline 
     vanity.__setdrawcolor(style.outline1)
@@ -119,6 +123,9 @@ function groupmt:__render(px, py, pw, ph)
     surface.SetTextPos(x + 10, y + 8)
     vanity.__settextcolor(style.textcolor)
     surface.DrawText(self.name)
+
+        
+
 
     -- Render children
     local children = self.children
