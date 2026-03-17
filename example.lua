@@ -97,3 +97,6 @@ for i = 1, 20 do
     local label = vanity.Label("Test " .. i, vanity.color(colorValue, colorValue, colorValue, 255))
     example2:__addchild(label)
 end
+
+local shit = vanity.Label("+  /           -", vanity.color(255,255,255, 255))
+group:__addchild(shit)

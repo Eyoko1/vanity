@@ -147,30 +147,36 @@ local function clone(target)
     return cloned
 end
 
-function vanity.__inherit(data, metatable)
-    data.__proto = metatable
+function vanity.__inherit(data, mt)
+    data = data or {}
 
-    local key, value = next(metatable)
-    ::inherit::
-    if (key) then
-        if data[key] == nil then
-            if istable(value) then
-                local cloned = {}
-                local k, v = next(value)
-                ::clone::
-                if (k) then
-                    cloned[k] = v
-                    k, v = next(value, k)
-                    goto clone
-                end
-                data[key] = cloned
-            else
-                data[key] = value
+    setmetatable(data, mt)
+
+    -- Shallow-copy any tables already on the instance (caller-provided),
+    -- so the caller can't accidentally share references across widgets.
+    for k, v in pairs(data) do
+        if istable(v) then
+            local copy = {}
+            for key, val in pairs(v) do
+                copy[key] = val
+            end
+            data[k] = copy
+        end
+    end
+
+    -- Also clone table fields that exist on the metatable/prototype chain.
+    -- Many widgets keep mutable defaults (children, size, position, etc) on the prototype;
+    -- without cloning, every instance shares those same tables.
+    local seen = {}
+    local proto = mt
+    while (istable(proto) and not seen[proto]) do
+        seen[proto] = true
+        for k, v in pairs(proto) do
+            if (rawget(data, k) == nil and istable(v)) then
+                data[k] = clone(v)
             end
         end
-
-        key, value = next(metatable, key)
-        goto inherit
+        proto = getmetatable(proto)
     end
 
     return data

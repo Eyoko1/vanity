@@ -9,10 +9,11 @@ local labelmt = {
     size = vanity.vector(0, 0)
 }
 
-setmetatable(labelmt, {__index = vanity.metatables.base})
 labelmt.__index = labelmt
-vanity.metatables.label = labelmt
+setmetatable(labelmt, vanity.metatables.base)
 lje.env.auth_metatable(labelmt)
+vanity.metatables.label = labelmt
+
 
 function labelmt:__render(x, y, w, h)
     local style = vanity.style

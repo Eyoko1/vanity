@@ -11,8 +11,9 @@ local buttonmt = {
 }
 
 buttonmt.__index = buttonmt
-vanity.metatables.label = buttonmt
+setmetatable(buttonmt, vanity.metatables.base)
 lje.env.auth_metatable(buttonmt)
+vanity.metatables.button = buttonmt
 
 function vanity.metatables.group:button(text, callback)
     local button = vanity.__inherit({
@@ -52,10 +53,13 @@ function buttonmt:__render(x, y, w, h)
     vanity.__setdrawcolor(vanity.style.outline1)
     surface.DrawOutlinedRect(x, y, w, h)
 
+    vanity.__setdrawcolor(vanity.style.outline2)
+    surface.DrawOutlinedRect(x - 1, y - 1, w + 2, h + 2)
+
     -- draw gradient down
-    surface.SetMaterial(vanity.materials.gradientdown)
+    surface.SetMaterial(vanity.materials.gradientup)
     vanity.__setdrawcolor(vanity.style.gradient)
-    surface.DrawTexturedRect(x + 1, y + 1, w - 2, h - 1)
+    surface.DrawTexturedRect(x + 1, y + 1, w - 2, h - 2)
 
 
 

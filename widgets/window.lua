@@ -13,10 +13,10 @@ local windowmt = {
     __sectionend = 0
 }
 
-setmetatable(windowmt, {__index = vanity.metatables.base})
 windowmt.__index = windowmt
-vanity.metatables.window = windowmt
+setmetatable(windowmt, vanity.metatables.base)
 lje.env.auth_metatable(windowmt)
+vanity.metatables.window = windowmt
 
 --- Adds a new tab to a window.
 --- @param data table
@@ -55,21 +55,6 @@ function windowmt:__invalidatelayout()
     self.__sectionend = self.__sectionstart + (h - 65)
 end
 
---- Hides the window.
-function windowmt:hide()
-    self.hidden = true
-end
-
---- Shows the window.
-function windowmt:show()
-    self.hidden = false
-end
-
---- Toggles the visibility of window.
-function windowmt:togglehidden()
-    self.hidden = not self.hidden
-end
-
 --- Renders the window.
 function windowmt:__render()
     if (self.hidden) then
@@ -93,11 +78,9 @@ function windowmt:__render()
 
     -- draw the black outline around the window
     vanity.__setdrawcolor(style.outline2)
-    surface.DrawOutlinedRect(x - 2, y - 2, w + 4, h + 4)
-
-    -- draw the accented outline around the window
-    vanity.__setdrawcolor(style.accent)
     surface.DrawOutlinedRect(x - 1, y - 1, w + 2, h + 2)
+
+
 
     -- draw the entire window background
     vanity.__setdrawcolor(style.background1)
@@ -114,7 +97,6 @@ function windowmt:__render()
     vanity.__settextcolor(style.textcolor)
     surface.DrawText(name)
 
-    -- draw the outline around the main area
     if (nonzerocount) then
         local tabStartX = x + inset1 - 1
         local tabY = y + self.__titleheight + (twoinset1) - 2

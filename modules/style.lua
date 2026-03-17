@@ -8,10 +8,14 @@ vanity.style = {
     outline2 = vanity.color(0, 0, 0, 255),
 
     textcolor = vanity.color(255, 255, 255, 255),
-    
+    textcolor_disabled = vanity.color(160, 160, 160, 255),
+     
     accent = vanity.color(92, 122, 219, 255), --> editing the alpha is not recommended
 
-    gradient = vanity.color(0, 0, 0, 120),
+    tab_active = vanity.color(30, 30, 30, 255),
+    tab = vanity.color(25, 25, 25, 255),
+    gradient = vanity.color(0, 0, 0, 80),
+    green = vanity.color(255,255,255,255),
 
     text = vanity.font("text", {
         font = "Verdana",

@@ -6,8 +6,9 @@ local separatormt = {
 }
 
 separatormt.__index = separatormt
-vanity.metatables.label = separatormt
+setmetatable(separatormt, vanity.metatables.base)
 lje.env.auth_metatable(separatormt)
+vanity.metatables.label = separatormt
 
 function vanity.metatables.group:__internalseparator()
     local separator = vanity.__inherit({}, separatormt)
@@ -27,6 +28,9 @@ end
 function separatormt:__render(x, y, w, h)
     vanity.__setdrawcolor(vanity.style.outline1)
     surface.DrawRect(x, y + 1, w, 1)
+
+    vanity.__setdrawcolor(vanity.style.outline2)
+    surface.DrawOutlinedRect(x - 1, y, w + 1, h)
 end
 
 function separatormt:__checkinput()

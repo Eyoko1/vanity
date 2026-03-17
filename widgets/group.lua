@@ -11,10 +11,10 @@ local groupmt = {
     __computedy = 0
 }
 
-setmetatable(groupmt, {__index = vanity.metatables.base})
 groupmt.__index = groupmt
-vanity.metatables.group = groupmt
+setmetatable(groupmt, vanity.metatables.base)
 lje.env.auth_metatable(groupmt)
+vanity.metatables.group = groupmt
 
 -- Internal function used to add a widget to this specific group - you do not need to manually call this
 function groupmt:__addchild(widget)
@@ -109,7 +109,7 @@ function groupmt:__render(px, py, pw, ph)
 
     -- draw the black outline
     vanity.__setdrawcolor(style.outline2)
-    surface.DrawOutlinedRect(x + 1 , y + 1, w - 2, h - 2)
+    surface.DrawOutlinedRect(x - 1 , y - 1, w + 2, h + 2)
 
     vanity.__setdrawcolor(style.accent)
     surface.DrawLine(

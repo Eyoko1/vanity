@@ -7,7 +7,7 @@ local dropdownmt = {
 }
 
 dropdownmt.__index = dropdownmt
-vanity.metatables.label = dropdownmt
+vanity.metatables.dropdown = dropdownmt
 lje.env.auth_metatable(dropdownmt)
 
 function dropdownmt:__render()

@@ -11,8 +11,9 @@ local checkboxmt = {
 }
 
 checkboxmt.__index = checkboxmt
-vanity.metatables.label = checkboxmt
+setmetatable(checkboxmt, vanity.metatables.base)
 lje.env.auth_metatable(checkboxmt)
+vanity.metatables.checkbox = checkboxmt
 
 function vanity.metatables.group:checkbox(text, callback)
     local checkbox = vanity.__inherit({
@@ -50,6 +51,9 @@ function checkboxmt:__render(x, y, w, h)
     -- outline 
     vanity.__setdrawcolor(vanity.style.outline1)
     surface.DrawOutlinedRect(x, y, h, h)
+
+    vanity.__setdrawcolor(vanity.style.outline2)
+    surface.DrawOutlinedRect(x - 1, y - 1, h + 2, h + 2)
 
     -- text
     vanity.__settextcolor(vanity.style.textcolor)

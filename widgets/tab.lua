@@ -16,10 +16,10 @@ local tabmt = {
     __computedheight = 0
 }
 
-setmetatable(tabmt, {__index = vanity.metatables.base})
 tabmt.__index = tabmt
-vanity.metatables.tab = tabmt
+setmetatable(tabmt, vanity.metatables.base)
 lje.env.auth_metatable(tabmt)
+vanity.metatables.tab = tabmt
 
 --- Marks the tab as active.
 function tabmt:select()
@@ -35,26 +35,18 @@ end
 function tabmt:__invalidatelayout()
     local style = vanity.style
     local inset1 = style.inset1
-    local position = self.position
-
     local tabs = self.parent.tabs
-    local tabcount = #tabs
 
     local cumulativex = inset1
-    local i = 1
     surface.SetFont(style.tabtext)
-    ::invalidate_tab::
-    local tab = tabs[i]
-    if (tab == self) then
-        position[1] = cumulativex
-        position[2] = self.parent.__titleheight + (inset1 * 2)
-        return
-    else
+
+    for i = 1, #tabs do
+        local tab = tabs[i]
         local w, _ = surface.GetTextSize(tab.name)
         w = math.max(w + 20, 50)
+        tab.position[1] = cumulativex
+        tab.position[2] = self.parent.__titleheight + (inset1 * 2)
         cumulativex = cumulativex + inset1 + w
-        i = i + 1
-        goto invalidate_tab
     end
 end
 
@@ -106,18 +98,18 @@ function tabmt:__render(px, py, pw, ph)
         surface.DrawOutlinedRect(x - 1, y - 4, w + 2, h + 2)
     end
 
-    -- gradient up
-    surface.SetMaterial(vanity.materials.gradientup)
-    vanity.__setdrawcolor(style.gradient)
-    surface.DrawTexturedRect(x, y - 2, w, h)
-
     -- Draw the background behind button
-    vanity.__setdrawcolor(style.background1)
     if (parent.activetab == self) then
+        vanity.__setdrawcolor(style.tab_active)
         surface.DrawRect(x, y - 3, w, h + 1)
         -- Draw the active line on top of the button
         vanity.__setdrawcolor(style.accent)
         surface.DrawRect(x, y - 3, w, 1)
+
+        -- gradient up
+        surface.SetMaterial(vanity.materials.gradientup)
+        vanity.__setdrawcolor(style.gradient)
+        surface.DrawTexturedRect(x, y - 2, w, h)
 
 
         -- Render the text
@@ -127,11 +119,12 @@ function tabmt:__render(px, py, pw, ph)
 
         vanity.__drawchildren(self.children, x, y, pw, ph)
     else
+        vanity.__setdrawcolor(style.tab)
         surface.DrawRect(x, y - 3, w, h)
 
         -- Render the text
         surface.SetTextPos(x + 10, y + 4)
-        vanity.__settextcolor(style.textcolor)
+        vanity.__settextcolor(style.textcolor_disabled)
         surface.DrawText(name)
     end
 
