@@ -23,7 +23,50 @@ vanity.metatables.tab = tabmt
 
 --- Marks the tab as active.
 function tabmt:select()
-    self.parent.activetab = self
+    local parent = self.parent
+    local prev = parent.activetab
+    if (prev and prev ~= self and prev.__setchildrenhidden) then
+        prev:__setchildrenhidden(true)
+    end
+    parent.activetab = self
+    self:__setchildrenhidden(false)
+end
+
+function tabmt:__setchildrenhidden(hidden)
+    local children = self.children
+    local count = #children
+    if (count == 0) then
+        return
+    end
+
+    local i = 1
+    ::hide_children::
+    local child = children[i]
+    child.hidden = hidden or false
+    if (child.children) then
+        -- groups (and other containers) keep their own children
+        local subcount = #child.children
+        if (subcount > 0) then
+            local j = 1
+            ::hide_subchildren::
+            local sub = child.children[j]
+            sub.hidden = hidden or false
+            if (sub.children) then
+                if (sub.__setchildrenhidden) then
+                    sub:__setchildrenhidden(hidden)
+                end
+            end
+            if (j ~= subcount) then
+                j = j + 1
+                goto hide_subchildren
+            end
+        end
+    end
+
+    if (i ~= count) then
+        i = i + 1
+        goto hide_children
+    end
 end
 
 -- Internal function used to add a widget to this specific tab - you do not need to manually call this
@@ -132,6 +175,7 @@ function tabmt:__render(px, py, pw, ph)
 end
 
 function tabmt:__checkinput()
+    -- If we are not the active tab, we should not forward input to children.
     if (vanity.didclick()) then
         local x = self.__computedx
         local y = self.__computedy
@@ -143,6 +187,9 @@ function tabmt:__checkinput()
         end
     end
 
+    if (self.parent.activetab ~= self) then
+        return
+    end
     return vanity.__checkchildreninput(self.children)
 end
 

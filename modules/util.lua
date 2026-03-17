@@ -92,7 +92,10 @@ function vanity.__drawchildren(children, px, py, pw, ph)
 
     local i = 1
     ::draw_children::
-    children[i]:__render(px, py, pw, ph)
+    local child = children[i]
+    if (not child.hidden) and (not child.isHidden or not child:isHidden()) then
+        child:__render(px, py, pw, ph)
+    end
     if (i ~= count) then
         i = i + 1
         goto draw_children
@@ -108,9 +111,11 @@ function vanity.__checkchildreninput(children)
     local i = 1
     ::check_children_input::
     local child = children[i]
-    local __checkinput = child.__checkinput
-    if (__checkinput and __checkinput(child)) then
-        return true
+    if (not child.hidden) and (not child.isHidden or not child:isHidden()) then
+        local __checkinput = child.__checkinput
+        if (__checkinput and __checkinput(child)) then
+            return true
+        end
     end
     if (i ~= count) then
         i = i + 1

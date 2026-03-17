@@ -57,9 +57,18 @@ function basemt:toggle()
     self.hidden = not self.hidden
 end
 
---- Check if widget is visible
+--- Check if widget is visible (self + parent chain)
+function basemt:isVisible()
+    if (self.hidden) then
+        return false
+    end
+    local parent = self.parent
+    return (parent == nil) or (parent.isVisible and parent:isVisible()) or (not parent.hidden)
+end
+
+--- Check if widget is hidden (self or any parent hidden)
 function basemt:isHidden()
-    return not self.hidden and (self.parent == nil or self.parent:isHidden())
+    return not self:isVisible()
 end
 
 --- Check if visible + do click
