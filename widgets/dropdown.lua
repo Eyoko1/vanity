@@ -73,6 +73,28 @@ local function popup_remove(self)
     end
 end
 
+local function popup_close_others(self)
+    local popups = vanity.__popups
+    if (not popups) then
+        return
+    end
+
+    local i = #popups
+    if (i == 0) then
+        return
+    end
+    ::close_other_popups::
+    local popup = popups[i]
+    if (popup and popup ~= self) then
+        popup.open = false
+        table.remove(popups, i)
+    end
+    if (i > 1) then
+        i = i - 1
+        goto close_other_popups
+    end
+end
+
 --- Creates a dropdown inside a group.
 --- @param text string Label drawn above the dropdown box.
 --- @param options table List of strings, or list of tables { label = string, value = any }.
@@ -335,6 +357,7 @@ function dropdownmt:__render(x, y, w, h)
     self.__list = { listX, listY, w, listH }
 
     if (self.open) then
+        popup_close_others(self)
         popup_add(self)
     end
 end
@@ -463,6 +486,7 @@ function dropdownmt:__checkinput()
         if (overBox) then
             self.open = not self.open
             if (self.open) then
+                popup_close_others(self)
                 popup_add(self)
             else
                 popup_remove(self)
