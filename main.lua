@@ -12,23 +12,23 @@ function vanity.include(path)
     lje.include(path)
 end
 
+local widgets_to_include = {
+    "base", "window", "tab", "group", "label", "button", "checkbox", "separator", "slider", "dropdown"
+}
+
+
 vanity.include("modules/util.lua")
 vanity.include("modules/style.lua")
 vanity.include("modules/input.lua")
 
 -- Widget files
-vanity.include("widgets/base.lua")
+for i,v in pairs(widgets_to_include) do
+    vanity.include("widgets/" .. v .. ".lua")
+end
 
-vanity.include("widgets/window.lua")
-vanity.include("widgets/tab.lua")
-vanity.include("widgets/group.lua")
 
-vanity.include("widgets/label.lua")
-vanity.include("widgets/button.lua")
-vanity.include("widgets/checkbox.lua")
-vanity.include("widgets/separator.lua")
 
 vanity.include("modules/render.lua") 
 
 -- Uncomment this to run the example!
---vanity.include("example.lua")
+vanity.include("example.lua")

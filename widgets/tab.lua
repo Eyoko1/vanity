@@ -1,5 +1,6 @@
 --- A tab is a small button widget featured under the menu name. 
 local vanity = vanity
+local floor = math.floor
 
 local tabmt = {
     name = "Tab",
@@ -110,9 +111,13 @@ function tabmt:__render(px, py, pw, ph)
     local y = py + position[2]
 
     surface.SetFont(style.tabtext)
-    local w, h = surface.GetTextSize(name)
-    w = math.max(w + 20, 50)
-    h = style.tabheight
+    local tw, _ = surface.GetTextSize(name)
+    local _, fontH = surface.GetTextSize("Hg")
+    local w = math.max(tw + 20, 50)
+    local h = style.tabheight
+    -- Center text on the visible tab face and apply a tiny optical Y offset.
+    local textX = floor(x + (w * 0.5) - (tw * 0.5) + 0.5)
+    local textY = floor((y - 3) + (h * 0.5) - (fontH * 0.5) + 1.5)
 
     self.__computedx = x
     self.__computedy = y
@@ -149,14 +154,11 @@ function tabmt:__render(px, py, pw, ph)
         vanity.__setdrawcolor(style.accent)
         surface.DrawRect(x, y - 3, w, 1)
 
-        -- gradient up
-        surface.SetMaterial(vanity.materials.gradientup)
-        vanity.__setdrawcolor(style.gradient)
-        surface.DrawTexturedRect(x, y - 2, w, h)
+        vanity.__drawgradient(x, y - 2, w, h, 1)
 
 
         -- Render the text
-        surface.SetTextPos(x + 10, y + 4)
+        surface.SetTextPos(textX, textY)
         vanity.__settextcolor(style.textcolor)
         surface.DrawText(name)
 
@@ -166,7 +168,7 @@ function tabmt:__render(px, py, pw, ph)
         surface.DrawRect(x, y - 3, w, h)
 
         -- Render the text
-        surface.SetTextPos(x + 10, y + 4)
+        surface.SetTextPos(textX, textY)
         vanity.__settextcolor(style.textcolor_disabled)
         surface.DrawText(name)
     end

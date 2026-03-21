@@ -71,6 +71,9 @@ end
 
 local surface_SetDrawColor = surface.SetDrawColor
 local surface_SetTextColor = surface.SetTextColor
+local surface_SetMaterial = surface.SetMaterial
+local surface_DrawTexturedRect = surface.DrawTexturedRect
+local floor = math.floor
 
 function vanity.__setdrawcolor(color)
     surface_SetDrawColor(color[1], color[2], color[3], color[4])
@@ -82,6 +85,36 @@ end
 
 function vanity.__settextcolor(color)
     surface_SetTextColor(color[1], color[2], color[3], color[4])
+end
+
+--- Draws a softer two-pass gradient for panels and controls.
+--- @param x integer
+--- @param y integer
+--- @param w integer
+--- @param h integer
+--- @param intensity number|nil Optional multiplier for style.gradient alpha.
+function vanity.__drawgradient(x, y, w, h, intensity)
+    if (w <= 0) or (h <= 0) then
+        return
+    end
+
+    local gradient = vanity.style.gradient
+    local baseAlpha = gradient[4] or 0
+    if (baseAlpha <= 0) then
+        return
+    end
+
+    local scale = intensity or 1
+    local topAlpha = floor(math.min(255, baseAlpha * scale))
+    local bottomAlpha = floor(math.min(255, topAlpha * 0.45))
+
+    surface_SetMaterial(vanity.materials.gradientup)
+    vanity.__setdrawcoloralpha(gradient, topAlpha)
+    surface_DrawTexturedRect(x, y, w, h)
+
+    surface_SetMaterial(vanity.materials.gradientdown)
+    vanity.__setdrawcoloralpha(gradient, bottomAlpha)
+    surface_DrawTexturedRect(x, y, w, h)
 end
 
 function vanity.__drawchildren(children, px, py, pw, ph)

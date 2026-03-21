@@ -56,12 +56,7 @@ function buttonmt:__render(x, y, w, h)
     vanity.__setdrawcolor(vanity.style.outline2)
     surface.DrawOutlinedRect(x - 1, y - 1, w + 2, h + 2)
 
-    -- draw gradient down
-    surface.SetMaterial(vanity.materials.gradientup)
-    vanity.__setdrawcolor(vanity.style.gradient)
-    surface.DrawTexturedRect(x + 1, y + 1, w - 2, h - 2)
-
-
+    vanity.__drawgradient(x + 1, y + 1, w - 2, h - 2, 1)
 
     vanity.__settextcolor(vanity.style.textcolor)
     surface.SetFont(vanity.style.text)

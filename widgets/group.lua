@@ -98,10 +98,7 @@ function groupmt:__render(px, py, pw, ph)
 
     vanity.__setdrawcolor(style.background1)
     surface.DrawRect(x, y, w, h)
-    -- gradient up
-    surface.SetMaterial(vanity.materials.gradientup)
-    vanity.__setdrawcolor(style.gradient)
-    surface.DrawTexturedRect(x, y, w, h)
+    vanity.__drawgradient(x, y, w, h, 1)
 
     -- draw the grey outline 
     vanity.__setdrawcolor(style.outline1)
@@ -136,6 +133,9 @@ function groupmt:__render(px, py, pw, ph)
         local maxy = child_y + h
         local child_width = w - 20
         local i = 1
+        -- Store current group's scissor rect so children that need to temporarily
+        -- disable clipping (e.g. dropdown popups) can restore it reliably.
+        vanity.__scissorrect = { x, y, x + w, y + h, true }
         render.SetScissorRect(x, y, x + w, y + h, true)
         ::draw_children::
         local child = children[i]
@@ -147,6 +147,7 @@ function groupmt:__render(px, py, pw, ph)
             goto draw_children
         end
         render.SetScissorRect(0, 0, 0, 0, false)
+        vanity.__scissorrect = nil
     end
 end
 

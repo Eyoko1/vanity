@@ -14,8 +14,7 @@ vanity.style = {
 
     tab_active = vanity.color(30, 30, 30, 255),
     tab = vanity.color(25, 25, 25, 255),
-    gradient = vanity.color(0, 0, 0, 80),
-    green = vanity.color(255,255,255,255),
+    gradient = vanity.color(10, 10, 10, 120),
 
     text = vanity.font("text", {
         font = "Verdana",

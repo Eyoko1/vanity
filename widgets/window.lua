@@ -86,10 +86,7 @@ function windowmt:__render()
     vanity.__setdrawcolor(style.background1)
     surface.DrawRect(x, y, w, h)
         
-    -- gradient down
-    surface.SetMaterial(vanity.materials.gradientdown)
-    vanity.__setdrawcolor(style.gradient)
-    surface.DrawTexturedRect(x, y, w, h)
+    vanity.__drawgradient(x, y, w, h, 1)
 
     -- draw the menu text in top left corner
     surface.SetFont(style.text)

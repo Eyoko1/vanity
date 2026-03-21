@@ -66,10 +66,7 @@ function checkboxmt:__render(x, y, w, h)
         surface.DrawRect(x + 1, y + 1, h - 2, h - 2)
     end
 
-    -- gradient down
-    surface.SetMaterial(vanity.materials.gradientdown)
-    vanity.__setdrawcolor(vanity.style.gradient)
-    surface.DrawTexturedRect(x + 1, y + 1, h - 2, h - 8)
+    vanity.__drawgradient(x + 1, y + 1, h - 2, h - 2, 0.9)
 end
 
 function checkboxmt:__checkinput()
