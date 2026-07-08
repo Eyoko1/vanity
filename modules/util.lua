@@ -1,41 +1,38 @@
-local vanity = vanity
-
-local next = next
-local istable = istable
-
---- Creates a new vector.
---- @param x integer
---- @param y integer
---- @return Vector table
-function vanity.vector(x, y)
-    return {
-        x or 0,
-        y or 0
-    }
-end
-
---- Creates a new color.
---- @param r integer
---- @param g integer
---- @param b integer
---- @param a integer
---- @return Color table
-function vanity.color(r, g, b, a)
-    return {
-        r,
-        g,
-        b,
-        a or 255
-    }
-end
+--- @alias Vanity.Vector {[1]: number, [2]: number}
+--- @alias Vanity.Color {[1]: number, [2]: number, [3]: number}
+--- @alias Vanity.Font string
 
 local fonts = {}
 local fontdata = {}
---- creates a font with the given name, then returns the generated name. if the font already exists, it returns the cached name
+local materialcache = {}
+
+local mousex, mousey = 0, 0
+local clicked = false
+local mousedown = false
+local focused = nil
+
+--> Creates and returns a Vector2 object
+--- @param x number
+--- @param y number
+--- @return Vanity.Vector
+function vanity.vector(x, y)
+    return {x, y}
+end
+
+--> Creates and returns a Color object
+--- @param r number
+--- @param g number
+--- @param b number
+--- @return Vanity.Color
+function vanity.color(r, g, b, a)
+    return {r, g, b, a or 255}
+end
+
+--> Creates a font and returns its randomly generated id
 --- @param name string
---- @param data table
---- @return string
-function vanity.font(name, data) --> 
+--- @param data FontData
+--- @return Vanity.Font
+function vanity.font(name, data)
     local cached = fonts[name]
     if (cached) then
         return cached
@@ -49,173 +46,180 @@ function vanity.font(name, data) -->
     return id
 end
 
+--> Returns the FontData structure associated with the given font id
+--- @param id string
+--- @return FontData
 function vanity.fontdata(id)
     return fontdata[id]
 end
 
-local materialCache = {}
---- Creates a material and caches it.
----@param id string
----@param materialPath string
----@return IMaterial
-function vanity.material(id, materialPath)
-    local material = materialCache[id]
-
-    if not material then
-        material = Material(materialPath)
-        materialCache[id] = material
+--> Creates a material and caches it
+--- @param id string
+--- @param path string
+--- @return IMaterial
+function vanity.material(id, path)
+    local material = materialcache[id]
+    if (not material) then
+        material = Material(path)
+        materialcache[id] = material
     end
 
     return material
 end
 
-local surface_SetDrawColor = surface.SetDrawColor
-local surface_SetTextColor = surface.SetTextColor
-local surface_SetMaterial = surface.SetMaterial
-local surface_DrawTexturedRect = surface.DrawTexturedRect
-local floor = math.floor
-
-function vanity.__setdrawcolor(color)
-    surface_SetDrawColor(color[1], color[2], color[3], color[4])
-end
-
-function vanity.__setdrawcoloralpha(color, alpha)
-    surface_SetDrawColor(color[1], color[2], color[3], alpha)
-end
-
-function vanity.__settextcolor(color)
-    surface_SetTextColor(color[1], color[2], color[3], color[4])
-end
-
---- Draws a softer two-pass gradient for panels and controls.
---- @param x integer
---- @param y integer
---- @param w integer
---- @param h integer
---- @param intensity number|nil Optional multiplier for style.gradient alpha.
-function vanity.__drawgradient(x, y, w, h, intensity)
-    if (w <= 0) or (h <= 0) then
-        return
-    end
-
-    local gradient = vanity.style.gradient
-    local baseAlpha = gradient[4] or 0
-    if (baseAlpha <= 0) then
-        return
-    end
-
-    local scale = intensity or 1
-    local topAlpha = floor(math.min(255, baseAlpha * scale))
-    local bottomAlpha = floor(math.min(255, topAlpha * 0.45))
-
-    surface_SetMaterial(vanity.materials.gradientup)
-    vanity.__setdrawcoloralpha(gradient, topAlpha)
-    surface_DrawTexturedRect(x, y, w, h)
-
-    surface_SetMaterial(vanity.materials.gradientdown)
-    vanity.__setdrawcoloralpha(gradient, bottomAlpha)
-    surface_DrawTexturedRect(x, y, w, h)
-end
-
-function vanity.__drawchildren(children, px, py, pw, ph)
-    local count = #children
-    if (count == 0) then
-        return
-    end
-
-    local i = 1
-    ::draw_children::
-    local child = children[i]
-    if (not child.hidden) and (not child.isHidden or not child:isHidden()) then
-        child:__render(px, py, pw, ph)
-    end
-    if (i ~= count) then
-        i = i + 1
-        goto draw_children
-    end
-end
-
-function vanity.__checkchildreninput(children)
-    local count = #children
-    if (count == 0) then
-        return
-    end
-
-    local i = 1
-    ::check_children_input::
-    local child = children[i]
-    if (not child.hidden) and (not child.isHidden or not child:isHidden()) then
-        local __checkinput = child.__checkinput
-        if (__checkinput and __checkinput(child)) then
-            return true
-        end
-    end
-    if (i ~= count) then
-        i = i + 1
-        goto check_children_input
-    end
-end
-
-function vanity.__invalidatelayouts(children)
-    local count = #children
-    if (count == 0) then
-        return
-    end
-
-    local i = 1
-    ::draw_children::
-    children[i]:__invalidatelayout()
-    if (i ~= count) then
-        i = i + 1
-        goto draw_children
-    end
-end
-
--- Shallow clone of the value (which is assumed to be a table)
-local function clone(target)
-    local cloned = {}
-    local key, value = next(target)
-    ::clone_table::
-    if (key) then
-        cloned[key] = value
-        key, value = next(target, key)
-        goto clone_table
-    end
-
-    return cloned
-end
-
-function vanity.__inherit(data, mt)
-    data = data or {}
-
-    setmetatable(data, mt)
-
-    -- Shallow-copy any tables already on the instance (caller-provided),
-    -- so the caller can't accidentally share references across widgets.
-    for k, v in pairs(data) do
-        if istable(v) then
-            local copy = {}
-            for key, val in pairs(v) do
-                copy[key] = val
-            end
-            data[k] = copy
-        end
-    end
-
-    -- Also clone table fields that exist on the metatable/prototype chain.
-    -- Many widgets keep mutable defaults (children, size, position, etc) on the prototype;
-    -- without cloning, every instance shares those same tables.
-    local seen = {}
-    local proto = mt
-    while (istable(proto) and not seen[proto]) do
-        seen[proto] = true
-        for k, v in pairs(proto) do
-            if (rawget(data, k) == nil and istable(v)) then
-                data[k] = clone(v)
+--> An internal function which inherits the given base (metatable) into the given value
+--- @param value table
+--- @param base table
+--- @return table
+function vanity.inherit(value, base)
+    for i, v in pairs(base) do
+        if (not value[i]) then
+            if (istable(v)) then
+                value[i] = table.Copy(v)
+            else
+                value[i] = v
             end
         end
-        proto = getmetatable(proto)
     end
 
-    return data
+    return setmetatable(value, base)
 end
+
+--> Sets the surface draw color to the given Color object
+--- @param color Vanity.Color
+--- @return nil
+function vanity.setdrawcolor(color)
+    surface.SetDrawColor(color[1], color[2], color[3], color[4])
+end
+
+--> Sets the surface draw color to the given Color object, and overrides the alpha with the given alpha
+--- @param color Color
+--- @param alpha number
+--- @return nil
+function vanity.setdrawcoloralpha(color, alpha)
+    surface.SetDrawColor(color[1], color[2], color[3], alpha)
+end
+
+function vanity.settextcolor(color)
+    surface.SetTextColor(color[1], color[2], color[3], color[4])
+end
+
+local gradientdown = vanity.material("gradientdown", "gui/gradient_down")
+local gradientup = vanity.material("gradientup", "gui/gradient_up")
+
+--> Draws a two-pass gradient for panels and controls
+--- @param x number
+--- @param y number
+--- @param w number
+--- @param h number
+--- @param color Vanity.Color
+--- @param intensity number? An optional multiplier for the gradient's alpha
+function vanity.drawgradient(x, y, w, h, color, intensity)
+    if (w <= 0 or h <= 0) then
+        return
+    end
+
+    local alpha = (color[4] or 0)
+    if (intensity) then
+        alpha = alpha * intensity
+    end
+
+    if (alpha <= 0) then
+        return
+    end
+
+    local topalpha = math.floor(math.min(255, alpha))
+    local bottomalpha = math.floor(alpha * 0.45)
+
+    surface.SetMaterial(gradientup)
+    vanity.setdrawcoloralpha(color, topalpha)
+    surface.DrawTexturedRect(x, y, w, h)
+
+    surface.SetMaterial(gradientdown)
+    vanity.setdrawcoloralpha(color, bottomalpha)
+    surface.DrawTexturedRect(x, y, w, h)
+end
+
+--> Invalidates the given element's children
+--- @param widget Vanity.Widget
+function vanity.invalidatechildren(widget)
+    for i, v in ipairs(widget.children) do
+        v:invalidatelayout()
+    end
+end
+
+--> Finds the active style used for the given widget
+--- @param widget Vanity.Widget
+--- @return Vanity.Style
+function vanity.findstyle(widget)
+    while (true) do
+        --- @cast widget Vanity.Widget | Vanity.Window 
+        local style = widget.style
+        if (style) then
+            return style
+        end
+
+        widget = widget.parent
+        if (not widget) then
+            break
+        end
+    end
+end
+
+--> Returns whether or not the user clicked
+--- @return boolean
+function vanity.didclick()
+    return clicked
+end
+
+--> Returns whether or not the user's mouse is down
+--- @return boolean
+function vanity.mousedown()
+    return mousedown
+end
+
+--> Returns the user's mouse position
+--- @return number, number
+function vanity.mousepos()
+    return mousex, mousey
+end
+
+--> Returns whether or not the user's mouse is within the given boundaries
+--- @param x number
+--- @param y number
+--- @param w number
+--- @param h number
+--- @return boolean
+function vanity.ishovered(x, y, w, h)
+    return mousex >= x and mousex <= x + w and mousey >= y and mousey <= y + h
+end
+
+--> Marks the given widget as being focused
+--- @param widget Vanity.Widget
+--- @return nil
+function vanity.focus(widget)
+    if (focused) then
+        lje.con_printf("$yellow{Warning}: A vanity widget was focused while another was already focused!")
+    end
+
+    focused = widget
+end
+
+--> Returns the currently focused widget
+--- @return Vanity.Widget?
+function vanity.getfocus()
+    return focused
+end
+
+hook.pre("StartCommand", "vanity/input", function()
+    mousex, mousey = gui.MouseX(), gui.MouseY()
+    clicked = input.WasMousePressed(MOUSE_LEFT) or input.WasMouseDoublePressed(MOUSE_LEFT)
+    mousedown = input.IsMouseDown(MOUSE_LEFT)
+end)
+
+hook.pre("lje-util/render", "vanity/render", function()
+    focused = nil
+    for i, v in ipairs(vanity.windowlist) do
+        v:render()
+    end
+end)

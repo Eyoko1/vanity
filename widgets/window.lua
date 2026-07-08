@@ -1,185 +1,212 @@
-local vanity = vanity
+--- @class Vanity.Window : Vanity.Widget
+--- @field style Vanity.Style The style used by this window
+--- @field name string The name of this window
+--- @field hidden boolean Whether or not this window is hidden (does not draw)
+--- @field activetab Vanity.Tab? The tab which is currently active, or nil if this window has no tabs
+--- @field titleheight number The height of this window's title
+--- @field sectionstart number The y coordinate where the main section begins
+--- @field sectionend number The y coordinate where the main section ends
+--- @field dragging boolean
+--- @field dragx number
+--- @field dragy number
+--- @
+--- @field tab fun(self: Vanity.Window, data: Vanity.TabData): Vanity.Tab
+--- @field render fun(self: Vanity.Window): nil
+--- @field invalidatelayout fun(self: Vanity.Window): nil
 
-local windowmt = {
-    name = "Window",
-    hidden = false,
-    tabs = {},
-    activetab = nil,
+--- @class Vanity.WindowData
+--- @field name string?
+--- @field hidden boolean?
+--- @field style Vanity.Style?
+--- @field position Vanity.Vector?
+--- @field size Vanity.Vector?
 
-    position = vanity.vector(2, 2),
+--- @type Vanity.Window
+local WindowMT = {
+    parent = nil,
+    children = {},
+    position = vanity.vector(ScrW() * 0.5 - 250, ScrH() * 0.5 - 300),
     size = vanity.vector(500, 600),
-    __titleheight = 0,
-    __sectionstart = 0,
-    __sectionend = 0
+
+    style = vanity.style(),
+    name = "",
+    hidden = false,
+    activetab = nil,
+    titleheight = 0,
+    sectionstart = 0,
+    sectionend = 0,
+    dragging = false,
+    dragx = 0,
+    dragy = 0,
+
+    tab = function() end, --- @diagnostic disable-line
+    render = function() end,
+    invalidatelayout = function() end
 }
+vanity.metatables.window = WindowMT
 
-windowmt.__index = windowmt
-setmetatable(windowmt, vanity.metatables.base)
-vanity.metatables.window = windowmt
+--> Creates a window with the given data
+--- @param data Vanity.WindowData?
+--- @return Vanity.Window
+function vanity.window(data)
+    --- @type Vanity.Window
+    local window = vanity.inherit(data or {}, WindowMT)
+    table.insert(vanity.windowlist, window)
 
---- Adds a new tab to a window.
---- @param data table
---- @return table
-function windowmt:tab(data)
-    local tabs = self.tabs
-    local tab = vanity.__inherit(data or {}, vanity.metatables.tab)
-    local index = #tabs + 1
-    tab.parent = self
-    tab.index = index
-    tab.children = tab.children or {}
+    window:invalidatelayout()
 
-    tabs[index] = tab
-
-    if (index == 1) then
-        self.activetab = tab
-    end
-
-    --tab:__invalidatelayout()
-    vanity.__invalidatelayouts(tabs)
-
-    return tab
+    return window
 end
 
-function windowmt:__invalidatelayout()
-    local style = vanity.style
-    surface.SetFont(style.text)
-    local _, th = surface.GetTextSize(self.name)
-    self.__titleheight = th
-
-    local y = self.position[2]
-    local h = self.size[2]
-
-    local taby = y + th + (style.inset1 * 2) - 2
-    self.__sectionstart = taby + style.tabheight - 1
-    self.__sectionend = self.__sectionstart + (h - 65)
-end
-
---- Renders the window.
-function windowmt:__render()
+--> Renders the window
+function WindowMT:render()
     if (self.hidden) then
         return
     end
 
-    local style = vanity.style
-    local inset1 = style.inset1
-    local twoinset1 = inset1 * 2
-
+    local style = self.style
+    local name = self.name
     local position = self.position
     local size = self.size
-    local name = self.name
+    local children = self.children
+    local activetab = self.activetab
+
+    local inset1 = style.inset_1
 
     local x, y = position[1], position[2]
     local w, h = size[1], size[2]
 
-    local tabs = self.tabs
-    local tabcount = #tabs
-    local nonzerocount = tabcount ~= 0
+    local hovered = vanity.ishovered(x, y, w, h)
 
-    -- draw the black outline around the window
-    --vanity.__setdrawcolor(style.outline2)
-    vanity.__setdrawcolor(style.accent)
+    vanity.setdrawcolor(style.accent)
     surface.DrawOutlinedRect(x - 1, y - 1, w + 2, h + 2)
 
-
-
-    -- draw the entire window background
-    vanity.__setdrawcolor(style.background1)
+    vanity.setdrawcolor(style.background_1)
     surface.DrawRect(x, y, w, h)
-        
-    vanity.__drawgradient(x, y, w, h, 1)
 
-    -- draw the menu text in top left corner
+    vanity.drawgradient(x, y, w, h, style.gradient)
+
     surface.SetFont(style.text)
     surface.SetTextPos(x + inset1, y + inset1)
-    vanity.__settextcolor(style.textcolor)
+    vanity.settextcolor(style.text_color)
     surface.DrawText(name)
 
-    if (nonzerocount) then
-        local tabStartX = x + inset1 - 1
-        local tabY = y + self.__titleheight + (twoinset1) - 2
+    if (activetab) then
+        local _, textheight = surface.GetTextSize(self.name)
+        --[[
+        local tabstartx = x + inset1
+        local sectionwidth = w - (inset1 * 2)
+        local sectionheight = h - style.tab_height - textheight - (inset1 * 3) + 3
+        local sectionstart = y + textheight + (inset1 * 2) + style.tab_height - 0
+        local sectionend = sectionstart + sectionheight-- - 65
+        ]]
+        local tabstartx = x + inset1 - 1 --> Good
+        local sectionwidth = w - (inset1 * 2) --> Good
+        local sectionheight = h - textheight - style.tab_height - (inset1 * 3) + 3
+        local sectionstart = y + textheight + (inset1 * 2) + style.tab_height - 2
+        local sectionend = sectionstart + sectionheight
 
-        local __sectionstart = tabY + style.tabheight - 1
-        local __sectionend = __sectionstart + (h - 65)
-        self.__sectionstart = __sectionstart
-        self.__sectionend = __sectionend
-        
-        vanity.__setdrawcolor(style.outline1)
-        surface.DrawOutlinedRect(tabStartX, __sectionstart, w - 15, h - 65)
-        
-        vanity.__setdrawcolor(style.outline2)
-        surface.DrawOutlinedRect(tabStartX - 1, tabY + style.tabheight - 2, w - 13, h - 63)
+        self.titleheight = textheight
+        self.sectionstart = sectionstart
+        self.sectionend = sectionend
 
-        --- @TODO: make sure that this main area has some sort of "clipping"
-    end
+        vanity.setdrawcolor(style.outline_2)
+        surface.DrawOutlinedRect(
+            tabstartx - 1,
+            sectionstart - 1,
+            sectionwidth + 2,
+            sectionheight + 2
+        )
 
-    -- Draw the tabs
-    if (nonzerocount) then
-        local _, th = surface.GetTextSize(name)
-        self.__titleheight = th
-        local i = 1
-        ::draw_and_align_tabs::
-        tabs[i]:__render(x, y, w, h)
-        if (i ~= tabcount) then
-            i = i + 1
-            goto draw_and_align_tabs
+        vanity.setdrawcolor(style.outline_1)
+        surface.DrawLine(
+            tabstartx,
+            sectionend - 1,
+            tabstartx + sectionwidth,
+            sectionend - 1
+        )
+        surface.DrawLine(
+            tabstartx,
+            sectionstart,
+            tabstartx,
+            sectionend
+        )
+        surface.DrawLine(
+            tabstartx + sectionwidth - 1,
+            sectionstart,
+            tabstartx + sectionwidth - 1,
+            sectionend
+        )
+        vanity.setdrawcolor(style.outline_1)
+        surface.DrawLine(
+            tabstartx + 1,
+            sectionstart,
+            x + activetab.position[1],
+            sectionstart
+        )
+        surface.DrawLine(
+            x + activetab.position[1] + activetab.size[1],
+            sectionstart,
+            tabstartx + sectionwidth - 1,
+            sectionstart
+        )
+
+        --> Draw the tabs (and their contents)
+        for i, v in ipairs(children) do
+            v:render(x, y, w, h, style, hovered)
         end
     end
-end
 
-local dragging = false
-local dragtarget = nil
-local dragx = 0
-local dragy = 0
-function windowmt:__checkinput()
-    if (self.hidden) then
-        return
-    end
-
-    local position = self.position
-    local x, y = position[1], position[2]
-    if (dragging and dragtarget == self) then
+    --> Handle dragging
+    if (self.dragging) then
         if (vanity.mousedown()) then
-            local mx, my = vanity.mousepos()
-            position[1] = mx - dragx
-            position[2] = my - dragy
-
-            --local time = FrameTime() * 15
-            --position[1] = Lerp(time, position[1], mx - dragx)
-            --position[2] = Lerp(time, position[2], my - dragy)
-
-            return true
+            local mousex, mousey = vanity.mousepos()
+            x = mousex - self.dragx
+            y = mousey - self.dragy
+            position[1] = x
+            position[2] = y
         else
-            dragging = false
+            self.dragging = false
         end
-    end
-
-    local size = self.size
-    if (vanity.ishovered(x, y, size[1], size[2])) then
-        if (vanity.__checkchildreninput(self.tabs)) then
-            dragging = false
-            return true
-        else
-            if (vanity.didclick()) then
-                local mx, my = vanity.mousepos()
-                dragx = mx - x
-                dragy = my - y
-                dragging = true
-                dragtarget = self
-                return true
-            end
+    else
+        --> If there is no other focused element, and the user clicked, and this window is hovered then let's allow dragging
+        if (not vanity.getfocus() and vanity.didclick() and vanity.ishovered(x, y, w, h)) then
+            local mousex, mousey = vanity.mousepos()
+            self.dragx = mousex - x
+            self.dragy = mousey - y
+            self.dragging = true
+            vanity.focus(self)
         end
     end
 end
 
+--> Invalidates the window's layout, causing it to recalculate some internal values
+function WindowMT:invalidatelayout()
+    local style = self.style
+    local inset1 = style.inset_1
+    local tabs = self.children
+    local cumulativex = inset1
 
---- Creates a new window.
---- @param data {name: string?, hidden: boolean?, position: table?, size: table?}? Window data
---- @return table
-function vanity:window(data)
-    local window = vanity.__inherit(data or {}, windowmt)
-    vanity.windows[#vanity.windows + 1] = window
+    surface.SetFont(self.style.text)
 
-    window:__invalidatelayout()
+    local _, height = surface.GetTextSize(self.name)
+    local taby = self.position[2] + height + (inset1 * 2) - 2
+    
+    self.titleheight = height
+    self.sectionstart = taby + style.tab_height - 1
+    self.sectionend = self.sectionstart + self.size[2] - 65
 
-    return window
+    surface.SetFont(style.text_tab)
+
+    local tabheight = height + (inset1 * 2)
+    for i, tab in ipairs(tabs) do
+        --- @cast tab Vanity.Tab
+        local w, _ = surface.GetTextSize(tab.name)
+        w = math.max(w + 20, 50)
+        tab.position[1] = cumulativex
+        tab.position[2] = tabheight
+        tab.size[1] = w
+        tab.size[2] = style.tab_height
+        cumulativex = cumulativex + w + inset1
+    end
 end

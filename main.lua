@@ -1,35 +1,49 @@
+--> Migration guidelines:
+--> vanity.style is now a function which creates a new style
+
+--> Widgets use computed* to avoid having to recomputed positions in the input function
+
+--- @class Vanity.Widget
+--- @field parent Vanity.Widget? The parent widget
+--- @field children Vanity.Widget[] An array of this widget's children
+--- @field position Vanity.Vector The position of this widget relative to its parent
+--- @field size Vanity.Vector The size of this widget
+--- @
+--- @field render fun(self: Vanity.Widget, parentx: number, parenty: number, parentw: number, parenth: number, style: Vanity.Style, parenthovered: boolean): nil
+--- @field invalidatelayout fun(self: Vanity.Widget): nil
+
 --- @diagnostic disable-next-line
 vanity = {
-    style = {}, --> populated in modules/style.lua
-    windows = {},
+    --- @type Vanity.Window[]
+    windowlist = {},
     metatables = {
-        window = nil,
-        tab = nil
+        --- @type Vanity.Window
+        window = nil
     }
 }
 
+--- @param path string
 function vanity.include(path)
     lje.con_printf("[$black{Vanity}] including %s", path)
     lje.include(path)
 end
 
-local widgets_to_include = {
-    "base", "window", "tab", "group", "label", "button", "checkbox", "separator", "slider", "dropdown"
-}
-
-
+--> Modules
 vanity.include("modules/util.lua")
 vanity.include("modules/style.lua")
-vanity.include("modules/input.lua")
 
--- Widget files
-for i,v in pairs(widgets_to_include) do
-    vanity.include("widgets/" .. v .. ".lua")
-end
+--> Widgets
+vanity.include("widgets/window.lua")
+vanity.include("widgets/tab.lua")
 
+local testwindow = vanity.window({
+    name = "Test Window"
+})
 
+testwindow:tab({
+    name = "Tab 1"
+})
 
-vanity.include("modules/render.lua") 
-
--- Uncomment this to run the example!
---vanity.include("example.lua")
+testwindow:tab({
+    name = "Tab 2"
+})
