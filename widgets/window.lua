@@ -6,9 +6,10 @@
 --- @field titleheight number The height of this window's title
 --- @field sectionstart number The y coordinate where the main section begins
 --- @field sectionend number The y coordinate where the main section ends
---- @field dragging boolean
---- @field dragx number
---- @field dragy number
+--- @field dragging boolean Whether or not the user is dragging this window
+--- @field dragx number The offset on the y axis for dragging
+--- @field dragy number The offset on the x axis for dragging
+--- @field toplinex number
 --- @
 --- @field tab fun(self: Vanity.Window, data: Vanity.TabData): Vanity.Tab
 --- @field render fun(self: Vanity.Window): nil
@@ -38,6 +39,7 @@ local WindowMT = {
     dragging = false,
     dragx = 0,
     dragy = 0,
+    toplinex = 0,
 
     tab = function() end, --- @diagnostic disable-line
     render = function() end,
@@ -93,13 +95,6 @@ function WindowMT:render()
 
     if (activetab) then
         local _, textheight = surface.GetTextSize(self.name)
-        --[[
-        local tabstartx = x + inset1
-        local sectionwidth = w - (inset1 * 2)
-        local sectionheight = h - style.tab_height - textheight - (inset1 * 3) + 3
-        local sectionstart = y + textheight + (inset1 * 2) + style.tab_height - 0
-        local sectionend = sectionstart + sectionheight-- - 65
-        ]]
         local tabstartx = x + inset1 - 1 --> Good
         local sectionwidth = w - (inset1 * 2) --> Good
         local sectionheight = h - textheight - style.tab_height - (inset1 * 3) + 3
@@ -137,17 +132,22 @@ function WindowMT:render()
             tabstartx + sectionwidth - 1,
             sectionend
         )
-        vanity.setdrawcolor(style.outline_1)
+
+        local toplinex = Lerp(FrameTime() * 10, self.toplinex, activetab.position[1])
+        self.toplinex = toplinex
+
+        local tl1 = tabstartx + 1
         surface.DrawLine(
-            tabstartx + 1,
+            tl1,
             sectionstart,
-            x + activetab.position[1],
+            x + toplinex,
             sectionstart
         )
+        local tl2 = tabstartx + sectionwidth - 1
         surface.DrawLine(
-            x + activetab.position[1] + activetab.size[1],
+            x + toplinex + activetab.size[1],
             sectionstart,
-            tabstartx + sectionwidth - 1,
+            tl2,
             sectionstart
         )
 
@@ -185,6 +185,7 @@ function WindowMT:invalidatelayout()
     local style = self.style
     local inset1 = style.inset_1
     local tabs = self.children
+    local activetab = self.activetab
     local cumulativex = inset1
 
     surface.SetFont(self.style.text)
@@ -208,5 +209,9 @@ function WindowMT:invalidatelayout()
         tab.size[1] = w
         tab.size[2] = style.tab_height
         cumulativex = cumulativex + w + inset1
+    end
+
+    if (activetab) then
+        self.toplinex = activetab.position[1]
     end
 end

@@ -138,6 +138,38 @@ function vanity.drawgradient(x, y, w, h, color, intensity)
     surface.SetMaterial(gradientdown)
     vanity.setdrawcoloralpha(color, bottomalpha)
     surface.DrawTexturedRect(x, y, w, h)
+
+    draw.NoTexture()
+end
+
+--> Draws the up gradient
+--- @param x number
+--- @param y number
+--- @param w number
+--- @param h number
+--- @param color Vanity.Color
+--- @param intensity number? An optional multiplier for the gradient's alpha
+function vanity.drawgradientdown(x, y, w, h, color, intensity)
+    if (w <= 0 or h <= 0) then
+        return
+    end
+
+    local alpha = (color[4] or 0)
+    if (intensity) then
+        alpha = alpha * intensity
+    end
+
+    if (alpha <= 0) then
+        return
+    end
+
+    local topalpha = math.floor(math.min(255, alpha))
+
+    surface.SetMaterial(gradientdown)
+    vanity.setdrawcoloralpha(color, topalpha)
+    surface.DrawTexturedRect(x, y, w, h)
+
+    draw.NoTexture()
 end
 
 --> Invalidates the given element's children
@@ -209,6 +241,18 @@ end
 --- @return Vanity.Widget?
 function vanity.getfocus()
     return focused
+end
+
+--- @param a number The starting value
+--- @param b number The end value
+--- @param time number The current time delta
+--- @param duration number The final time delta
+function vanity.timelerp(a, b, time, duration)
+    if (time >= duration) then
+        return b
+    end
+
+    return a + ((b - a) * (time / duration))
 end
 
 hook.pre("StartCommand", "vanity/input", function()

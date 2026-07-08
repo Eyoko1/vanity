@@ -47,3 +47,7 @@ testwindow:tab({
 testwindow:tab({
     name = "Tab 2"
 })
+
+testwindow:tab({
+    name = "Long Tab Name"
+})
