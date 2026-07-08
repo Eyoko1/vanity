@@ -6,7 +6,7 @@ local istable = istable
 --- Creates a new vector.
 --- @param x integer
 --- @param y integer
---- @return vector table
+--- @return Vector table
 function vanity.vector(x, y)
     return {
         x or 0,
@@ -19,7 +19,7 @@ end
 --- @param g integer
 --- @param b integer
 --- @param a integer
---- @return color table
+--- @return Color table
 function vanity.color(r, g, b, a)
     return {
         r,
@@ -34,7 +34,7 @@ local fontdata = {}
 --- creates a font with the given name, then returns the generated name. if the font already exists, it returns the cached name
 --- @param name string
 --- @param data table
---- @return font table
+--- @return string
 function vanity.font(name, data) --> 
     local cached = fonts[name]
     if (cached) then

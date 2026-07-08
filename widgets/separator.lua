@@ -7,7 +7,6 @@ local separatormt = {
 
 separatormt.__index = separatormt
 setmetatable(separatormt, vanity.metatables.base)
-lje.env.auth_metatable(separatormt)
 vanity.metatables.label = separatormt
 
 function vanity.metatables.group:__internalseparator()

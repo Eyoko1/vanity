@@ -42,7 +42,6 @@ local dropdownmt = {
 
 dropdownmt.__index = dropdownmt
 setmetatable(dropdownmt, vanity.metatables.base)
-lje.env.auth_metatable(dropdownmt)
 vanity.metatables.dropdown = dropdownmt
 
 local function popup_add(self)

@@ -13,7 +13,6 @@ local groupmt = {
 
 groupmt.__index = groupmt
 setmetatable(groupmt, vanity.metatables.base)
-lje.env.auth_metatable(groupmt)
 vanity.metatables.group = groupmt
 
 -- Internal function used to add a widget to this specific group - you do not need to manually call this
@@ -120,9 +119,6 @@ function groupmt:__render(px, py, pw, ph)
     surface.SetTextPos(x + 10, y + 8)
     vanity.__settextcolor(style.textcolor)
     surface.DrawText(self.name)
-
-        
-
 
     -- Render children
     local children = self.children

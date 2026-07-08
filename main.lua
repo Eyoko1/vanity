@@ -1,3 +1,4 @@
+--- @diagnostic disable-next-line
 vanity = {
     style = {}, --> populated in modules/style.lua
     windows = {},
@@ -31,4 +32,4 @@ end
 vanity.include("modules/render.lua") 
 
 -- Uncomment this to run the example!
-vanity.include("example.lua")
+--vanity.include("example.lua")

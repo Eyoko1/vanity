@@ -2,7 +2,7 @@ local vanity = vanity
 
 
 local next = next
-hook.pre("ljeutil/postrender", "__vanity_render", function()
+hook.pre("lje-util/postrender", "__vanity_render", function()
     --surface.SetDrawColor(50, 50, 50, 255)
     --surface.DrawRect(0, 0, ScrW(), ScrH())
 

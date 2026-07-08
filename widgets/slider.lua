@@ -48,7 +48,6 @@ local slidermt = {
 
 slidermt.__index = slidermt
 setmetatable(slidermt, vanity.metatables.base)
-lje.env.auth_metatable(slidermt)
 vanity.metatables.slider = slidermt
 
 function vanity.metatables.group:slider(text, min, max, value, step, suffix, decimals, callback)

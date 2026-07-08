@@ -15,12 +15,11 @@ local windowmt = {
 
 windowmt.__index = windowmt
 setmetatable(windowmt, vanity.metatables.base)
-lje.env.auth_metatable(windowmt)
 vanity.metatables.window = windowmt
 
 --- Adds a new tab to a window.
 --- @param data table
---- @return data table
+--- @return table
 function windowmt:tab(data)
     local tabs = self.tabs
     local tab = vanity.__inherit(data or {}, vanity.metatables.tab)
@@ -77,7 +76,8 @@ function windowmt:__render()
     local nonzerocount = tabcount ~= 0
 
     -- draw the black outline around the window
-    vanity.__setdrawcolor(style.outline2)
+    --vanity.__setdrawcolor(style.outline2)
+    vanity.__setdrawcolor(style.accent)
     surface.DrawOutlinedRect(x - 1, y - 1, w + 2, h + 2)
 
 
@@ -173,8 +173,8 @@ end
 
 
 --- Creates a new window.
---- @param data table Window data
---- @return data table
+--- @param data {name: string?, hidden: boolean?, position: table?, size: table?}? Window data
+--- @return table
 function vanity:window(data)
     local window = vanity.__inherit(data or {}, windowmt)
     vanity.windows[#vanity.windows + 1] = window

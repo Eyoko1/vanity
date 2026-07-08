@@ -19,7 +19,6 @@ local tabmt = {
 
 tabmt.__index = tabmt
 setmetatable(tabmt, vanity.metatables.base)
-lje.env.auth_metatable(tabmt)
 vanity.metatables.tab = tabmt
 
 --- Marks the tab as active.

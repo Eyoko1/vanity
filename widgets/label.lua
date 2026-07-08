@@ -11,12 +11,30 @@ local labelmt = {
 
 labelmt.__index = labelmt
 setmetatable(labelmt, vanity.metatables.base)
-lje.env.auth_metatable(labelmt)
 vanity.metatables.label = labelmt
 
+function vanity.metatables.group:label(text)
+    local label = vanity.__inherit({
+        text = text
+    }, labelmt)
+
+    label:__invalidatelayout()
+
+    return self:__addchild(label)
+end
+
+function labelmt:__invalidatelayout()
+    surface.SetFont(vanity.style.text)
+    local w, h = surface.GetTextSize(self.text)
+    h = h + 4
+
+    self.halftextwidth = w * 0.5
+    
+    local size = self.size
+    size[1], size[2] = w, h
+end
 
 function labelmt:__render(x, y, w, h)
-    local style = vanity.style
     vanity.__settextcolor(self.color)
     surface.SetTextPos(x, y)
     surface.SetFont(vanity.style.text)

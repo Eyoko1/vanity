@@ -11,7 +11,6 @@ local basemt = {
 }
 
 basemt.__index = basemt
-lje.env.auth_metatable(basemt)
 vanity.metatables.base = basemt
 
 --- Override this in child widgets

@@ -12,7 +12,6 @@ local checkboxmt = {
 
 checkboxmt.__index = checkboxmt
 setmetatable(checkboxmt, vanity.metatables.base)
-lje.env.auth_metatable(checkboxmt)
 vanity.metatables.checkbox = checkboxmt
 
 function vanity.metatables.group:checkbox(text, callback)
@@ -71,7 +70,7 @@ end
 
 function checkboxmt:__checkinput()
     if (vanity.didclick()) then
-        if (vanity.ishovered(self.__computedx, self.__computedy, self.__computedwidth, self.__computedheight)) then
+        if (vanity.ishovered(self.__computedx, self.__computedy, self.__computedheight * 1.5, self.__computedheight)) then
             local state = not self.state
             self.state = state
             self.callback(state)
@@ -79,7 +78,7 @@ function checkboxmt:__checkinput()
             return true
         end
     elseif (vanity.mousedown()) then
-        if (vanity.ishovered(self.__computedx, self.__computedy, self.__computedwidth, self.__computedheight)) then
+        if (vanity.ishovered(self.__computedx, self.__computedy, self.__computedheight * 1.5, self.__computedheight)) then
             return true
         end
     end

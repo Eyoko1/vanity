@@ -12,7 +12,6 @@ local buttonmt = {
 
 buttonmt.__index = buttonmt
 setmetatable(buttonmt, vanity.metatables.base)
-lje.env.auth_metatable(buttonmt)
 vanity.metatables.button = buttonmt
 
 function vanity.metatables.group:button(text, callback)
@@ -32,7 +31,7 @@ function buttonmt:__invalidatelayout()
     h = h + 4
 
     self.halftextwidth = w * 0.5
-    
+
     local size = self.size
     size[1], size[2] = w, h
 end
