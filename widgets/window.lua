@@ -80,14 +80,18 @@ function WindowMT:render()
 
     local hovered = vanity.ishovered(x, y, w, h)
 
+    --> Draw the accent outline around the window
     vanity.setdrawcolor(style.accent)
     surface.DrawOutlinedRect(x - 1, y - 1, w + 2, h + 2)
 
+    --> Draw the window's background
     vanity.setdrawcolor(style.background_1)
     surface.DrawRect(x, y, w, h)
 
+    --> Draw the gradient overlay
     vanity.drawgradient(x, y, w, h, style.gradient)
 
+    --> Draw the name of the window
     surface.SetFont(style.text)
     surface.SetTextPos(x + inset1, y + inset1)
     vanity.settextcolor(style.text_color)
@@ -95,8 +99,8 @@ function WindowMT:render()
 
     if (activetab) then
         local _, textheight = surface.GetTextSize(self.name)
-        local tabstartx = x + inset1 - 1 --> Good
-        local sectionwidth = w - (inset1 * 2) --> Good
+        local tabstartx = x + inset1 - 1
+        local sectionwidth = w - (inset1 * 2)
         local sectionheight = h - textheight - style.tab_height - (inset1 * 3) + 3
         local sectionstart = y + textheight + (inset1 * 2) + style.tab_height - 2
         local sectionend = sectionstart + sectionheight
@@ -105,6 +109,7 @@ function WindowMT:render()
         self.sectionstart = sectionstart
         self.sectionend = sectionend
 
+        --> Draw the secondary outline
         vanity.setdrawcolor(style.outline_2)
         surface.DrawOutlinedRect(
             tabstartx - 1,
@@ -113,6 +118,7 @@ function WindowMT:render()
             sectionheight + 2
         )
 
+        --> Draw the primary outline
         vanity.setdrawcolor(style.outline_1)
         surface.DrawLine(
             tabstartx,
@@ -133,6 +139,7 @@ function WindowMT:render()
             sectionend
         )
 
+        --> Draw the lines at the top with animations
         local toplinex = Lerp(FrameTime() * 10, self.toplinex, activetab.position[1])
         self.toplinex = toplinex
 

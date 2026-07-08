@@ -66,9 +66,9 @@ end
 --- @param style Vanity.Style
 --- @return nil
 function TabMT:render(parentx, parenty, parentw, parenth, style)
-    local inset1 = style.inset_1
+    --local inset1 = style.inset_1
 
-    local index = self.index
+    --local index = self.index
     local parent = self.parent --- @cast parent -nil
     local name = self.name
     local position = self.position
@@ -84,6 +84,7 @@ function TabMT:render(parentx, parenty, parentw, parenth, style)
     local textx = math.floor(x + (w * 0.5) - (textwidth * 0.5) + 0.5)
     local texty = math.floor((y - 3) + (h * 0.5) - (textheight * 0.5) + 1.5)
 
+    --> Handle input
     if (not vanity.getfocus()) then
         if (vanity.ishovered(x, y, w, h) and vanity.didclick()) then
             vanity.focus(self)
@@ -93,43 +94,41 @@ function TabMT:render(parentx, parenty, parentw, parenth, style)
         end
     end
 
+    --> Draw the secondary outline
     vanity.setdrawcolor(style.outline_2)
     surface.DrawOutlinedRect(x - 2, y - 5, w + 4, h + 2)
 
+    --[[
     if (index ~= 1) then
-        local yh1 = y + h
-        local yh2 = yh1 - 3
-        --local yh3 = yh1 - 2
-
-        surface.DrawLine(x - inset1 + 1,  yh2, x - 2, yh2)
-
-        vanity.setdrawcolor(style.outline_1)
-        surface.DrawOutlinedRect(x - 1, y - 4, w + 2, h + 2)
-
-        --surface.DrawLine(x - inset1, yh3, x - 1, yh3)
-    else
-        vanity.setdrawcolor(style.outline_1)
-        surface.DrawOutlinedRect(x - 1, y - 4, w + 2, h + 2)
+        local yh = y + h - 3
+        surface.DrawLine(x - inset1 + 1,  yh, x - 2, yh)
     end
+    ]]
+
+    --> Draw the primary outline
+    vanity.setdrawcolor(style.outline_1)
+    surface.DrawOutlinedRect(x - 1, y - 4, w + 2, h + 2)
 
     if (parent.activetab == self) then
+        --> Draw the background for this tab and remove the line below it
         vanity.setdrawcolor(style.tab_active)
         surface.DrawRect(x, y - 3, w, h + 1)
 
-        --vanity.setdrawcolor(style.background_1)
-        --surface.DrawRect(x, y + h - 3, w, 2)
-
+        --> Draw the gradient overlay
         vanity.drawgradientdown(x, y - 2, w, h, style.gradient)
 
+        --> Draw the name
         surface.SetTextPos(textx, texty)
         vanity.settextcolor(style.text_color)
         surface.DrawText(name)
 
         self.accentalpha = Lerp(FrameTime() * 16, self.accentalpha, 255)
     else
+        --> Draw the background for this tab without removing the line below it
         vanity.setdrawcolor(style.tab_inactive)
         surface.DrawRect(x, y - 2, w, h)
 
+        --> Draw the name
         surface.SetTextPos(textx, texty)
         vanity.settextcolor(style.text_color_disabled)
         surface.DrawText(name)
@@ -137,6 +136,7 @@ function TabMT:render(parentx, parenty, parentw, parenth, style)
         self.accentalpha = Lerp(FrameTime() * 16, self.accentalpha, 0)
     end
 
+    --> Draw the accent above the tab
     local accentalpha = self.accentalpha
     if (accentalpha >= 1) then
         vanity.setdrawcoloralpha(style.accent, accentalpha)
