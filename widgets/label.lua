@@ -83,6 +83,4 @@ function LabelMT:invalidatelayout()
     end
 
     parent:invalidatelayout()
-
-    lje.con_printf("%s", self.size[2])
 end

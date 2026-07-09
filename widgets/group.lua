@@ -66,8 +66,8 @@ function GroupMT:render(parentx, parenty, parentw, parenth, parenthovered, style
     local parent = self.parent --- @cast parent Vanity.Tab
     local position = self.position
     local size = self.size
-    local x = parentx + position[1] + inset1
-    local y = parenty + style.tab_height + position[2] + inset1
+    local x = parentx + position[1]
+    local y = parenty + position[2]
     local w, h = size[1], size[2]
 
     vanity.setdrawcolor(style.background_1)
@@ -142,4 +142,6 @@ function GroupMT:invalidatelayout()
         h = h + widgetsize[2] + inset2
     end
     self.size = vanity.vector(w, math.max(h - inset2 + inset1, 50))
+
+    self.parent:invalidatelayout()
 end

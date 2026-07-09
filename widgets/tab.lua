@@ -1,5 +1,6 @@
 --- @class Vanity.Tab : Vanity.Widget
 --- @field parent Vanity.Window?
+--- @field children Vanity.Group[]
 --- @
 --- @field name string The name of this tab
 --- @field index integer The index of this tab
@@ -52,6 +53,8 @@ function WindowMT:tab(data)
 
     if (index == 1) then
         tab:select()
+        tab.accentprogress = 1
+        tab.accentalpha = 255
     end
 
     tab:invalidatelayout()
@@ -153,7 +156,7 @@ function TabMT:render(parentx, parenty, parentw, parenth, parenthovered, style)
     local frametime = FrameTime()
     local accentalpha = Lerp(frametime * style.animation_speed, self.accentalpha, lerptarget * 255)
     self.accentalpha = accentalpha
-    self.accentprogress = Lerp(frametime * style.animation_speed * 0.5, self.accentprogress, lerptarget)
+    self.accentprogress = Lerp(frametime * style.animation_speed * 0.75, self.accentprogress, lerptarget)
 
     --> Draw the accent above the tab
     if (accentalpha >= 1) then
@@ -164,5 +167,34 @@ end
 
 --> Invalidates the tab causing it to recalculate some internal values
 function TabMT:invalidatelayout()
+    local style = vanity.findstyle(self)
+    local inset1 = style.inset_1
+
+    --> Re-calculate group positions
+    --- @type Vanity.Window
+    local parent = self.parent
+    local leftx = inset1
+    local leftheight = parent.sectionend - parent.sectionstart - (inset1 * 2)
+    local rightx = (inset1 * 2) + (parent.size[1] - (inset1 * 5)) * 0.5
+    local rightheight = leftheight
+    local originy = leftheight + style.tab_height + inset1
+
+    for i, group in ipairs(self.children) do
+        local groupposition = group.position
+        local widgetheight = group.size[2]
+        if (widgetheight <= leftheight) then
+            groupposition[1] = leftx
+            groupposition[2] = originy - leftheight
+            leftheight = leftheight - widgetheight - inset1
+        elseif (widgetheight <= rightheight) then
+            groupposition[1] = rightx
+            groupposition[2] = originy - rightheight
+            rightheight = rightheight - widgetheight - inset1
+        else
+            --- @TODO: Handle overflowing by adding a property to windows called overflowsize, and then adding that to the actual size
+            lje.con_printf("Window '%s' has overflowed as it's size is too small!", self.parent.name)
+        end
+    end
+
     self.parent:invalidatelayout()
 end

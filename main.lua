@@ -67,6 +67,10 @@ testgroup:separator()
 testgroup:separator()
 testgroup:separator()
 
+for i = 2, 10 do
+    testtab:group({name = "Group " .. tostring(i)})
+end
+
 testwindow:tab({
     name = "Tab 2"
 })
