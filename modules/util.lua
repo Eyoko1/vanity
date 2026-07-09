@@ -5,6 +5,7 @@
 local fonts = {}
 local fontdata = {}
 local materialcache = {}
+local scissorrectstack = {}
 
 local mousex, mousey = 0, 0
 local clicked = false
@@ -243,16 +244,22 @@ function vanity.getfocus()
     return focused
 end
 
---- @param a number The starting value
---- @param b number The end value
---- @param time number The current time delta
---- @param duration number The final time delta
-function vanity.timelerp(a, b, time, duration)
-    if (time >= duration) then
-        return b
-    end
+--> Pushes a scissor rect to the top of the stack and actives it
+function vanity.pushscissorrect(x1, y1, x2, y2)
+    render.SetScissorRect(x1, y1, x2, y2, true)
+    table.insert(scissorrectstack, {x1, y1, x2, y2})
+end
 
-    return a + ((b - a) * (time / duration))
+--> Pops a scissor rect from the stack and activates the last one (if it exists)
+function vanity.popscissorrect()
+    table.remove(scissorrectstack)
+    local length = #scissorrectstack
+    if (length > 0) then
+        local scissorrect = scissorrectstack[length]
+        render.SetScissorRect(scissorrect[1], scissorrect[2], scissorrect[3], scissorrect[4], true)
+    else
+        render.SetScissorRect(0, 0, 0, 0, false)
+    end
 end
 
 hook.pre("StartCommand", "vanity/input", function()

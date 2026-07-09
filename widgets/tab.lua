@@ -4,9 +4,11 @@
 --- @field name string The name of this tab
 --- @field index integer The index of this tab
 --- @field accentalpha number The transparency of the accent bar at the top of active tabs - this is used for animations
+--- @field accentprogress number
 --- @
+--- @field group fun(self: Vanity.Tab, data: Vanity.GroupData?): Vanity.Group
 --- @field select fun(self: Vanity.Tab): nil
---- @field render fun(self: Vanity.Tab, x: number, y: number, w: number, h: number, style: Vanity.Style): nil
+--- @field render Vanity.RenderFunction
 --- @field invalidatelayout fun(self: Vanity.Tab): nil
 
 --- @class Vanity.TabData
@@ -22,11 +24,14 @@ local TabMT = {
     name = "",
     index = 1,
     accentalpha = 0,
+    accentprogress = 0,
 
+    group = function() return {} end,
     select = function() end,
     render = function() end,
     invalidatelayout = function() end
 }
+vanity.metatables.tab = TabMT
 
 local WindowMT = vanity.metatables.window
 
@@ -46,7 +51,7 @@ function WindowMT:tab(data)
     children[index] = tab
 
     if (index == 1) then
-        self.activetab = tab
+        tab:select()
     end
 
     tab:invalidatelayout()
@@ -56,6 +61,7 @@ end
 
 function TabMT:select()
     self.parent.activetab = self
+    self.accentprogress = 0
 end
 
 --> Renders the tab
@@ -64,8 +70,9 @@ end
 --- @param parentw number
 --- @param parenth number
 --- @param style Vanity.Style
+--- @param parenthovered boolean
 --- @return nil
-function TabMT:render(parentx, parenty, parentw, parenth, style)
+function TabMT:render(parentx, parenty, parentw, parenth, parenthovered, style)
     --local inset1 = style.inset_1
 
     --local index = self.index
@@ -74,7 +81,7 @@ function TabMT:render(parentx, parenty, parentw, parenth, style)
     local position = self.position
 
     local x = parentx + position[1]
-    local y = parenty + position[2]
+    local y = parenty + position[2] + 2
 
     surface.SetFont(style.text_tab)
     local textwidth, _ = surface.GetTextSize(name)
@@ -109,10 +116,11 @@ function TabMT:render(parentx, parenty, parentw, parenth, style)
     vanity.setdrawcolor(style.outline_1)
     surface.DrawOutlinedRect(x - 1, y - 4, w + 2, h + 2)
 
+    local lerptarget
     if (parent.activetab == self) then
         --> Draw the background for this tab and remove the line below it
         vanity.setdrawcolor(style.tab_active)
-        surface.DrawRect(x, y - 3, w, h + 1)
+        surface.DrawRect(x, y - 4, w, h + 2)
 
         --> Draw the gradient overlay
         vanity.drawgradientdown(x, y - 2, w, h, style.gradient)
@@ -122,25 +130,35 @@ function TabMT:render(parentx, parenty, parentw, parenth, style)
         vanity.settextcolor(style.text_color)
         surface.DrawText(name)
 
-        self.accentalpha = Lerp(FrameTime() * 16, self.accentalpha, 255)
+        local hovered = parenthovered and vanity.ishovered(x, y, parent.sectionstart, parent.sectionend - parent.sectionstart)
+        for i, group in ipairs(self.children) do
+            --- @cast group Vanity.Group
+            group:render(x, y, w, h, hovered, style)
+        end
+
+        lerptarget = 1
     else
         --> Draw the background for this tab without removing the line below it
         vanity.setdrawcolor(style.tab_inactive)
-        surface.DrawRect(x, y - 2, w, h)
+        surface.DrawRect(x, y - 3, w, h + 1)
 
         --> Draw the name
         surface.SetTextPos(textx, texty)
         vanity.settextcolor(style.text_color_disabled)
         surface.DrawText(name)
 
-        self.accentalpha = Lerp(FrameTime() * 16, self.accentalpha, 0)
+        lerptarget = 0
     end
 
+    local frametime = FrameTime()
+    local accentalpha = Lerp(frametime * style.animation_speed, self.accentalpha, lerptarget * 255)
+    self.accentalpha = accentalpha
+    self.accentprogress = Lerp(frametime * style.animation_speed * 0.5, self.accentprogress, lerptarget)
+
     --> Draw the accent above the tab
-    local accentalpha = self.accentalpha
     if (accentalpha >= 1) then
         vanity.setdrawcoloralpha(style.accent, accentalpha)
-        surface.DrawRect(x, y - 3, w, 1)
+        surface.DrawRect(x, y - 4, w, 1)
     end
 end
 

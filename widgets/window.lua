@@ -9,7 +9,8 @@
 --- @field dragging boolean Whether or not the user is dragging this window
 --- @field dragx number The offset on the y axis for dragging
 --- @field dragy number The offset on the x axis for dragging
---- @field toplinex number
+--- @field toplinelx number The relative x offset for the left side of the line below the tabs - used for animations
+--- @field toplinerx number The relative x offset for the right side of the line below the tabs - used for animations
 --- @
 --- @field tab fun(self: Vanity.Window, data: Vanity.TabData): Vanity.Tab
 --- @field render fun(self: Vanity.Window): nil
@@ -39,7 +40,8 @@ local WindowMT = {
     dragging = false,
     dragx = 0,
     dragy = 0,
-    toplinex = 0,
+    toplinelx = 0,
+    toplinerx = 0,
 
     tab = function() end, --- @diagnostic disable-line
     render = function() end,
@@ -88,6 +90,15 @@ function WindowMT:render()
     vanity.setdrawcolor(style.background_1)
     surface.DrawRect(x, y, w, h)
 
+    local tilematerial = style.background_tile_material
+    if (tilematerial) then
+        local tilesize = style.background_tile_size
+        surface.SetMaterial(tilematerial)
+        vanity.setdrawcolor(style.background_tile_color)
+        surface.DrawTexturedRectUV(x, y, w, h, 0, 0, w / tilesize, h / tilesize)
+        draw.NoTexture()
+    end
+
     --> Draw the gradient overlay
     vanity.drawgradient(x, y, w, h, style.gradient)
 
@@ -102,8 +113,8 @@ function WindowMT:render()
         local tabstartx = x + inset1 - 1
         local sectionwidth = w - (inset1 * 2)
         local sectionheight = h - textheight - style.tab_height - (inset1 * 3) + 3
-        local sectionstart = y + textheight + (inset1 * 2) + style.tab_height - 2
-        local sectionend = sectionstart + sectionheight
+        local sectionstart = y + textheight + (inset1 * 2) + style.tab_height
+        local sectionend = sectionstart + sectionheight - 2
 
         self.titleheight = textheight
         self.sectionstart = sectionstart
@@ -140,19 +151,23 @@ function WindowMT:render()
         )
 
         --> Draw the lines at the top with animations
-        local toplinex = Lerp(FrameTime() * 10, self.toplinex, activetab.position[1])
-        self.toplinex = toplinex
+        local activetabx = activetab.position[1]
+        local time = FrameTime() * style.animation_speed
+        local toplinelx = Lerp(time, self.toplinelx, activetabx)
+        local toplinerx = Lerp(time, self.toplinerx, activetabx + activetab.size[1])
+        self.toplinelx = toplinelx
+        self.toplinerx = toplinerx
 
         local tl1 = tabstartx + 1
         surface.DrawLine(
             tl1,
             sectionstart,
-            x + toplinex,
+            x + toplinelx,
             sectionstart
         )
         local tl2 = tabstartx + sectionwidth - 1
         surface.DrawLine(
-            x + toplinex + activetab.size[1],
+            x + toplinerx,
             sectionstart,
             tl2,
             sectionstart
@@ -160,7 +175,7 @@ function WindowMT:render()
 
         --> Draw the tabs (and their contents)
         for i, v in ipairs(children) do
-            v:render(x, y, w, h, style, hovered)
+            v:render(x, y, w, h, hovered, style)
         end
     end
 
@@ -219,6 +234,7 @@ function WindowMT:invalidatelayout()
     end
 
     if (activetab) then
-        self.toplinex = activetab.position[1]
+        self.toplinelx = activetab.position[1]
+        self.toplinerx = activetab.position[1] + activetab.size[1]
     end
 end

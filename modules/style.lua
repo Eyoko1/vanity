@@ -4,6 +4,10 @@
 --- @field background_1 Vanity.Color
 --- @field background_2 Vanity.Color
 --- @
+--- @field background_tile_material IMaterial?
+--- @field background_tile_size number
+--- @field background_tile_color Vanity.Color
+--- @
 --- @field outline_1 Vanity.Color
 --- @field outline_2 Vanity.Color
 --- @
@@ -22,6 +26,8 @@
 --- @field inset_1 number
 --- @field inset_2 number
 --- @field tab_height number
+--- @
+--- @field animation_speed number
 
 --- @class Vanity.StyleData
 
@@ -31,6 +37,10 @@ local StyleMT = {
 
     background_1 = vanity.color(30, 30, 30, 255),
     background_2 = vanity.color(26, 26, 26, 255),
+
+    background_tile_material = nil,
+    background_tile_size = 128,
+    background_tile_color = vanity.color(255, 255, 255, 175),
 
     outline_1 = vanity.color(60, 60, 60, 255),
     outline_2 = vanity.color(0, 0, 0, 255),
@@ -64,8 +74,10 @@ local StyleMT = {
     }),
 
     inset_1 = 8,
-    inset_2 = 4,
-    tab_height = 26
+    inset_2 = 8,
+    tab_height = 26,
+
+    animation_speed = 16
 }
 
 --- @param data Vanity.StyleData?
