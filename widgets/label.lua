@@ -82,7 +82,6 @@ function LabelMT:render(x, y, w, h, parenthovered, style)
         else
             drawx = drawx + block.width
         end
-        
     end
 end
 
@@ -137,7 +136,7 @@ function LabelMT:invalidatelayout()
                     local wordwidth, wordheight = surface.GetTextSize(word)
                     wordwidth = wordwidth + spacewidth
                     local blockwidth = block.width + wordwidth
-                    if (blockwidth >= width) then
+                    if (blockwidth - spacewidth >= width) then
                         --> We need to move this text to the next line
                         if (wordwidth >= width) then
                             --> This word is super large so we need to break it down into smaller chunks
@@ -160,6 +159,7 @@ function LabelMT:invalidatelayout()
                     end
                 end
                 if (block.text ~= "") then
+                    block.linebreak = true
                     table.insert(blocks, block)
                     totalheight = totalheight + block.height
                 end

@@ -1,5 +1,7 @@
 --- @class Vanity.Group : Vanity.Widget
 --- @field name string
+--- @field groupaccentalpha number
+--- @
 --- @field separator fun(self: Vanity.Group): Vanity.Separator
 --- @field label fun(self: Vanity.Group, data: Vanity.Label.Data?): Vanity.Label
 --- @field addchild fun(self: Vanity.Group, child: Vanity.Widget): nil
@@ -10,11 +12,13 @@
 
 --- @type Vanity.Group
 local GroupMT = {
-    name = "",
     parent = nil,
     children = {},
     position = vanity.vector(0, 0),
     size = vanity.vector(0, 0),
+
+    name = "",
+    groupaccentalpha = 255,
 
     separator = function() return {} end,
     label = function() return {} end,
@@ -81,14 +85,13 @@ function GroupMT:render(parentx, parenty, parentw, parenth, parenthovered, style
     surface.DrawOutlinedRect(x - 1, y - 1, w + 2, h + 2)
 
     local hw = w * 0.5
-    local accentwidth = hw * parent.accentprogress
     local accentcenterx = x + hw
 
-    vanity.setdrawcolor(style.accent)
+    vanity.setdrawcoloralpha(style.accent, math.max(self.groupaccentalpha, 0))
     surface.DrawLine(
-        accentcenterx - accentwidth + 2,
+        accentcenterx - hw + 2,
         y + 2,
-        accentcenterx + accentwidth - 2,
+        accentcenterx + hw - 2,
         y + 2
     )
     --[[
@@ -105,10 +108,10 @@ function GroupMT:render(parentx, parenty, parentw, parenth, parenthovered, style
     vanity.settextcolor(style.text_color)
     surface.DrawText(self.name)
 
-    local childx = x + inset1
+    --local childx = x + inset1
     local childy = y + vanity.fontdata(style.text).size + inset1 + inset2
     local hovered = parenthovered and vanity.ishovered(x, y, w, h)
-    --vanity.pushscissorrect(x, y, x + w, y + h)
+    vanity.pushscissorrect(x, y, x + w, y + h)
     for i, widget in ipairs(self.children) do
         local widgetposition = widget.position
         local widgetsize = widget.size
@@ -116,7 +119,9 @@ function GroupMT:render(parentx, parenty, parentw, parenth, parenthovered, style
         widget:render(x + widgetposition[1], y + widgetposition[2], widgetsize[1], height, hovered, style)
         childy = childy + height + inset2
     end
-    --vanity.popscissorrect()
+    vanity.popscissorrect()
+
+    self.groupaccentalpha = Lerp(FrameTime() * style.animation_speed * 0.125, self.groupaccentalpha, 255)
 end
 
 --- @return nil
@@ -141,7 +146,7 @@ function GroupMT:invalidatelayout()
         widgetsize[1] = childwidth
         h = h + widgetsize[2] + inset2
     end
-    self.size = vanity.vector(w, math.max(h - inset2 + inset1, 50))
+    self.size = vanity.vector(w, math.max(h - inset2 + inset1, 25))
 
     self.parent:invalidatelayout()
 end

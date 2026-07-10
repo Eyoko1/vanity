@@ -5,7 +5,7 @@
 --- @field name string The name of this tab
 --- @field index integer The index of this tab
 --- @field accentalpha number The transparency of the accent bar at the top of active tabs - this is used for animations
---- @field accentprogress number
+--- @field groupaccentalpha number
 --- @
 --- @field group fun(self: Vanity.Tab, data: Vanity.Group.Data?): Vanity.Group
 --- @field select fun(self: Vanity.Tab): nil
@@ -25,7 +25,7 @@ local TabMT = {
     name = "",
     index = 1,
     accentalpha = 0,
-    accentprogress = 0,
+    groupaccentalpha = 0,
 
     group = function() return {} end,
     select = function() end,
@@ -53,7 +53,6 @@ function WindowMT:tab(data)
 
     if (index == 1) then
         tab:select()
-        tab.accentprogress = 1
         tab.accentalpha = 255
     end
 
@@ -62,9 +61,21 @@ function WindowMT:tab(data)
     return tab
 end
 
+local function groupsorter(a, b)
+    return a.position[2] < b.position[2]
+end
+
 function TabMT:select()
     self.parent.activetab = self
-    self.accentprogress = 0
+
+    local sorted = {}
+    for i, group in ipairs(self.children) do
+        sorted[i] = group
+    end
+    table.sort(sorted, groupsorter)
+    for i, group in ipairs(sorted) do
+        group.groupaccentalpha = (i - 1) * -35
+    end
 end
 
 --> Renders the tab
@@ -76,7 +87,7 @@ end
 --- @param parenthovered boolean
 --- @return nil
 function TabMT:render(parentx, parenty, parentw, parenth, parenthovered, style)
-    --local inset1 = style.inset_1
+    local inset1 = style.inset_1
 
     --local index = self.index
     local parent = self.parent --- @cast parent -nil
@@ -133,10 +144,12 @@ function TabMT:render(parentx, parenty, parentw, parenth, parenthovered, style)
         vanity.settextcolor(style.text_color)
         surface.DrawText(name)
 
+        local sectionx = parentx + inset1
+
         local hovered = parenthovered and vanity.ishovered(x, y, parent.sectionstart, parent.sectionend - parent.sectionstart)
         for i, group in ipairs(self.children) do
             --- @cast group Vanity.Group
-            group:render(x, y, w, h, hovered, style)
+            group:render(sectionx, y, w, h, hovered, style)
         end
 
         lerptarget = 1
@@ -156,7 +169,6 @@ function TabMT:render(parentx, parenty, parentw, parenth, parenthovered, style)
     local frametime = FrameTime()
     local accentalpha = Lerp(frametime * style.animation_speed, self.accentalpha, lerptarget * 255)
     self.accentalpha = accentalpha
-    self.accentprogress = Lerp(frametime * style.animation_speed * 0.75, self.accentprogress, lerptarget)
 
     --> Draw the accent above the tab
     if (accentalpha >= 1) then

@@ -1,4 +1,8 @@
---- @alias Vanity.Vector {[1]: number, [2]: number}
+--- @class Vanity.Vector : {[1]: number, [2]: number}
+--- @field floor fun(self: Vanity.Vector): integer, integer
+--- @field raw fun(self: Vanity.Vector): number, number
+--- @field __index Vanity.Vector
+
 --- @alias Vanity.Color {[1]: number, [2]: number, [3]: number}
 --- @alias Vanity.Font string
 
@@ -13,12 +17,24 @@ local clicked = false
 local mousedown = false
 local focused = nil
 
+--- @type Vanity.Vector
+local VectorMT = {}
+VectorMT.__index = VectorMT
+
+function VectorMT:floor()
+    return math.floor(self[1]), math.floor(self[2])
+end
+
+function VectorMT:raw()
+    return self[1], self[2]
+end
+
 --> Creates and returns a Vector2 object
 --- @param x number
 --- @param y number
 --- @return Vanity.Vector
 function vanity.vector(x, y)
-    return {x, y}
+    return setmetatable({x, y}, VectorMT)
 end
 
 --> Creates and returns a Color object

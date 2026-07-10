@@ -81,7 +81,7 @@ function WindowMT:render()
 
     local inset1 = style.inset_1
 
-    local x, y = position[1], position[2]
+    local x, y = position:floor()
     local w, h = size[1], size[2]
 
     local hovered = vanity.ishovered(x, y, w, h)
@@ -130,7 +130,7 @@ function WindowMT:render()
             tabstartx - 1,
             sectionstart - 1,
             sectionwidth + 2,
-            sectionheight + 2
+            sectionheight
         )
 
         --> Draw the primary outline
@@ -166,12 +166,12 @@ function WindowMT:render()
         surface.DrawLine(
             tl1,
             sectionstart,
-            x + toplinelx,
+            x + math.floor(toplinelx),
             sectionstart
         )
         local tl2 = tabstartx + sectionwidth - 1
         surface.DrawLine(
-            x + toplinerx,
+            x + math.floor(toplinerx),
             sectionstart,
             tl2,
             sectionstart
@@ -184,30 +184,29 @@ function WindowMT:render()
     end
 
     --> Handle dragging
+    local rx, ry = position:raw()
     if (self.dragging) then
         local mousex, mousey = vanity.mousepos()
         if (vanity.mousedown() and not (mousex == 0 and mousey == 0)) then
             --> Move the window towards the user's mouse
             local time = FrameTime() * 30
-            x = Lerp(time, position[1], mousex - self.dragx)
-            y = Lerp(time, position[2], mousey - self.dragy)
-            position[1] = x
-            position[2] = y
+            position[1] = Lerp(time, rx, mousex - self.dragx)
+            position[2] = Lerp(time, ry, mousey - self.dragy)
         else
             --> The user has stopped dragging so let's give the window some velocity depending on how fast they are moving their mouse
             self.dragging = false
 
             local time = FrameTime() * 5
-            self.dragvx = (mousex - self.dragx - position[1]) * time
-            self.dragvy = (mousey - self.dragy - position[2]) * time
+            self.dragvx = (mousex - self.dragx - rx) * time
+            self.dragvy = (mousey - self.dragy - ry) * time
         end
     else
         --> If there is no other focused element, and the user clicked, and this window is hovered then let's allow dragging
         if (not vanity.getfocus() and vanity.didclick() and vanity.ishovered(x, y, w, h)) then
             --> Allow dragging
             local mousex, mousey = vanity.mousepos()
-            self.dragx = mousex - x
-            self.dragy = mousey - y
+            self.dragx = mousex - rx
+            self.dragy = mousey - ry
             self.dragging = true
             self.dragvx = 0
             self.dragvy = 0
@@ -216,8 +215,8 @@ function WindowMT:render()
             --> Apply the velocity
             local time = 1 - (FrameTime() * 10)
             local dragvx, dragvy = self.dragvx, self.dragvy
-            position[1] = position[1] + dragvx
-            position[2] = position[2] + dragvy
+            position[1] = rx + dragvx
+            position[2] = ry + dragvy
             self.dragvx = dragvx * time
             self.dragvy = dragvy * time
         end
