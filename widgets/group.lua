@@ -1,11 +1,11 @@
 --- @class Vanity.Group : Vanity.Widget
 --- @field name string
 --- @field separator fun(self: Vanity.Group): Vanity.Separator
---- @field label fun(self: Vanity.Group, data: Vanity.LabelData?): Vanity.Label
+--- @field label fun(self: Vanity.Group, data: Vanity.Label.Data?): Vanity.Label
 --- @field addchild fun(self: Vanity.Group, child: Vanity.Widget): nil
 --- @field getwidth fun(self: Vanity.Group): number
 
---- @class Vanity.GroupData
+--- @class Vanity.Group.Data
 --- @field name string?
 
 --- @type Vanity.Group
@@ -27,7 +27,7 @@ vanity.metatables.group = GroupMT
 
 local TabMT = vanity.metatables.tab
 
---- @param data Vanity.GroupData?
+--- @param data Vanity.Group.Data?
 --- @return nil
 function TabMT:group(data)
     --- @type Vanity.Group

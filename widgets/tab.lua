@@ -7,12 +7,12 @@
 --- @field accentalpha number The transparency of the accent bar at the top of active tabs - this is used for animations
 --- @field accentprogress number
 --- @
---- @field group fun(self: Vanity.Tab, data: Vanity.GroupData?): Vanity.Group
+--- @field group fun(self: Vanity.Tab, data: Vanity.Group.Data?): Vanity.Group
 --- @field select fun(self: Vanity.Tab): nil
 --- @field render Vanity.RenderFunction
 --- @field invalidatelayout fun(self: Vanity.Tab): nil
 
---- @class Vanity.TabData
+--- @class Vanity.Tab.Data
 --- @field name string?
 
 --- @type Vanity.Tab
@@ -36,7 +36,7 @@ vanity.metatables.tab = TabMT
 
 local WindowMT = vanity.metatables.window
 
---- @param data Vanity.TabData
+--- @param data Vanity.Tab.Data
 --- @return Vanity.Tab
 function WindowMT:tab(data)
     --- @type Vanity.Tab

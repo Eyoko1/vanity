@@ -9,14 +9,16 @@
 --- @field dragging boolean Whether or not the user is dragging this window
 --- @field dragx number The offset on the y axis for dragging
 --- @field dragy number The offset on the x axis for dragging
+--- @field dragvx number The x velocity of the window after the user has released their mouse when dragging it
+--- @field dragvy number The y velocity of the window after the user has released their mouse when dragging it
 --- @field toplinelx number The relative x offset for the left side of the line below the tabs - used for animations
 --- @field toplinerx number The relative x offset for the right side of the line below the tabs - used for animations
 --- @
---- @field tab fun(self: Vanity.Window, data: Vanity.TabData): Vanity.Tab
+--- @field tab fun(self: Vanity.Window, data: Vanity.Tab.Data): Vanity.Tab
 --- @field render fun(self: Vanity.Window): nil
 --- @field invalidatelayout fun(self: Vanity.Window): nil
 
---- @class Vanity.WindowData
+--- @class Vanity.Window.Data
 --- @field name string?
 --- @field hidden boolean?
 --- @field style Vanity.Style?
@@ -40,6 +42,8 @@ local WindowMT = {
     dragging = false,
     dragx = 0,
     dragy = 0,
+    dragvx = 0,
+    dragvy = 0,
     toplinelx = 0,
     toplinerx = 0,
 
@@ -50,7 +54,7 @@ local WindowMT = {
 vanity.metatables.window = WindowMT
 
 --> Creates a window with the given data
---- @param data Vanity.WindowData?
+--- @param data Vanity.Window.Data?
 --- @return Vanity.Window
 function vanity.window(data)
     --- @type Vanity.Window
@@ -181,23 +185,41 @@ function WindowMT:render()
 
     --> Handle dragging
     if (self.dragging) then
-        if (vanity.mousedown()) then
-            local mousex, mousey = vanity.mousepos()
-            x = mousex - self.dragx
-            y = mousey - self.dragy
+        local mousex, mousey = vanity.mousepos()
+        if (vanity.mousedown() and not (mousex == 0 and mousey == 0)) then
+            --> Move the window towards the user's mouse
+            local time = FrameTime() * 30
+            x = Lerp(time, position[1], mousex - self.dragx)
+            y = Lerp(time, position[2], mousey - self.dragy)
             position[1] = x
             position[2] = y
         else
+            --> The user has stopped dragging so let's give the window some velocity depending on how fast they are moving their mouse
             self.dragging = false
+
+            local time = FrameTime() * 5
+            self.dragvx = (mousex - self.dragx - position[1]) * time
+            self.dragvy = (mousey - self.dragy - position[2]) * time
         end
     else
         --> If there is no other focused element, and the user clicked, and this window is hovered then let's allow dragging
         if (not vanity.getfocus() and vanity.didclick() and vanity.ishovered(x, y, w, h)) then
+            --> Allow dragging
             local mousex, mousey = vanity.mousepos()
             self.dragx = mousex - x
             self.dragy = mousey - y
             self.dragging = true
+            self.dragvx = 0
+            self.dragvy = 0
             vanity.focus(self)
+        else
+            --> Apply the velocity
+            local time = 1 - (FrameTime() * 10)
+            local dragvx, dragvy = self.dragvx, self.dragvy
+            position[1] = position[1] + dragvx
+            position[2] = position[2] + dragvy
+            self.dragvx = dragvx * time
+            self.dragvy = dragvy * time
         end
     end
 end
@@ -206,6 +228,8 @@ end
 function WindowMT:invalidatelayout()
     local style = self.style
     local inset1 = style.inset_1
+    local styletabheight = style.tab_height
+
     local tabs = self.children
     local activetab = self.activetab
     local cumulativex = inset1
@@ -214,7 +238,7 @@ function WindowMT:invalidatelayout()
 
     local _, height = surface.GetTextSize(self.name)
     local taby = self.position[2] + height + (inset1 * 2) - 2
-    
+
     self.titleheight = height
     self.sectionstart = taby + style.tab_height - 1
     self.sectionend = self.sectionstart + self.size[2] - 65
@@ -223,13 +247,17 @@ function WindowMT:invalidatelayout()
 
     local tabheight = height + (inset1 * 2)
     for i, tab in ipairs(tabs) do
+        local position = tab.position
+        local size = tab.size
+
         --- @cast tab Vanity.Tab
         local w, _ = surface.GetTextSize(tab.name)
         w = math.max(w + 20, 50)
-        tab.position[1] = cumulativex
-        tab.position[2] = tabheight
-        tab.size[1] = w
-        tab.size[2] = style.tab_height
+
+        position[1] = cumulativex
+        position[2] = tabheight
+        size[1] = w
+        size[2] = styletabheight
         cumulativex = cumulativex + w + inset1
     end
 

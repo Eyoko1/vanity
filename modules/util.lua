@@ -8,6 +8,7 @@ local materialcache = {}
 local scissorrectstack = {}
 
 local mousex, mousey = 0, 0
+local lastmousex, lastmousey = 0, 0
 local clicked = false
 local mousedown = false
 local focused = nil
@@ -217,6 +218,11 @@ function vanity.mousepos()
     return mousex, mousey
 end
 
+--> Returns the delta between this frame's mouse position and last frame's mouse position
+function vanity.mousedelta()
+    return mousex - lastmousex, mousey - lastmousey
+end
+
 --> Returns whether or not the user's mouse is within the given boundaries
 --- @param x number
 --- @param y number
@@ -263,6 +269,7 @@ function vanity.popscissorrect()
 end
 
 hook.pre("StartCommand", "vanity/input", function()
+    lastmousex, lastmousey = mousex, mousey
     mousex, mousey = gui.MouseX(), gui.MouseY()
     clicked = input.WasMousePressed(MOUSE_LEFT) or input.WasMouseDoublePressed(MOUSE_LEFT)
     mousedown = input.IsMouseDown(MOUSE_LEFT)

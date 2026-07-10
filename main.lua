@@ -62,6 +62,7 @@ local testgroup = testtab:group({
 
 testgroup:label({text = "Hello, World!"})
 testgroup:separator()
+testgroup:label({text = "Long piece of text which should wrap around to the next line."})
 testgroup:separator()
 testgroup:separator()
 testgroup:separator()
@@ -73,8 +74,12 @@ end
 
 testwindow:tab({
     name = "Tab 2"
+}):group({
+    name = "Test"
 })
 
 testwindow:tab({
     name = "Long Tab Name"
+}):group({
+    name = "Something"
 })
