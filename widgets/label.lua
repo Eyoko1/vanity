@@ -20,6 +20,9 @@
 --- @field width number
 --- @field height number
 
+--- @class Vanity.Group
+--- @field label fun(self: Vanity.Group, data: Vanity.Label.Data?): Vanity.Label
+
 --- @type Vanity.Label
 local LabelMT = {
     parent = nil,
@@ -36,6 +39,7 @@ local LabelMT = {
     render = function() end,
     invalidatelayout = function() end
 }
+vanity.metatables.label = LabelMT
 
 local GroupMT = vanity.metatables.group
 
@@ -47,6 +51,7 @@ function GroupMT:label(data)
 
     label.parent = self
     label:invalidatelayout()
+    self:invalidatelayout()
 
     return label
 end
@@ -228,5 +233,4 @@ function LabelMT:invalidatelayout()
     end
 
     self.blocks = blocks
-    parent:invalidatelayout()
 end

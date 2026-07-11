@@ -3,7 +3,7 @@
 --- @field raw fun(self: Vanity.Vector): number, number
 --- @field __index Vanity.Vector
 
---- @alias Vanity.Color {[1]: number, [2]: number, [3]: number}
+--- @alias Vanity.Color {[1]: number, [2]: number, [3]: number, [4]: number}
 --- @alias Vanity.Font string
 
 local fonts = {}
@@ -16,6 +16,7 @@ local lastmousex, lastmousey = 0, 0
 local clicked = false
 local mousedown = false
 local focused = nil
+local maskalpha = 0
 
 --- @type Vanity.Vector
 local VectorMT = {}
@@ -292,8 +293,18 @@ hook.pre("StartCommand", "vanity/input", function()
 end)
 
 hook.pre("lje-util/render", "vanity/render", function()
+    if (vgui.CursorVisible()) then
+        maskalpha = Lerp(FrameTime() * 15, maskalpha, 0)
+    else
+        maskalpha = Lerp(FrameTime() * 15, maskalpha, 125)
+    end
+    
     focused = nil
     for i, v in ipairs(vanity.windowlist) do
         v:render()
+        if (v.style.mask_when_cursor_invisible) then
+            surface.SetDrawColor(0, 0, 0, maskalpha)
+            surface.DrawRect(v.position[1], v.position[2], v.size[1], v.size[2])
+        end
     end
 end)

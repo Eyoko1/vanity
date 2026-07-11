@@ -28,6 +28,8 @@
 --- @field tab_height number
 --- @
 --- @field animation_speed number
+--- @
+--- @field mask_when_cursor_invisible boolean
 
 --- @class Vanity.StyleData
 
@@ -46,7 +48,7 @@ local StyleMT = {
     outline_2 = vanity.color(0, 0, 0, 255),
 
     text_color = vanity.color(255, 255, 255, 255),
-    text_color_disabled = vanity.color(160, 160, 160, 255),
+    text_color_disabled = vanity.color(205, 205, 205, 255),
 
     tab_active = vanity.color(30, 30, 30, 255),
     tab_inactive = vanity.color(25, 25, 25, 255),
@@ -77,7 +79,9 @@ local StyleMT = {
     inset_2 = 8,
     tab_height = 26,
 
-    animation_speed = 16
+    animation_speed = 16,
+
+    mask_when_cursor_invisible = false
 }
 
 --- @param data Vanity.StyleData?

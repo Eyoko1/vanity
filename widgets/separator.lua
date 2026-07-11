@@ -1,5 +1,8 @@
 --- @class Vanity.Separator : Vanity.Widget
 
+--- @class Vanity.Group
+--- @field separator fun(self: Vanity.Group): Vanity.Separator
+
 --- @type Vanity.Separator
 local SeparatorMT = {
     parent = nil,
@@ -20,6 +23,7 @@ function GroupMT:separator()
 
     separator.parent = self
     separator:invalidatelayout()
+    self:invalidatelayout()
 
     return separator
 end
@@ -35,11 +39,11 @@ function SeparatorMT:render(x, y, w, h, parenthovered, style)
     vanity.setdrawcolor(style.outline_1)
     surface.DrawRect(x + 1, y + 1, w - 1, 1)
 
-    vanity.setdrawcolor(style.outline_2)
-    surface.DrawOutlinedRect(x, y, w, h)
+    --vanity.setdrawcolor(style.outline_2)
+    --surface.DrawOutlinedRect(x, y, w, h)
 end
 
 --- @return nil
 function SeparatorMT:invalidatelayout()
-    self.parent:invalidatelayout()
+    
 end

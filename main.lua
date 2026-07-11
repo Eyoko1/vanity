@@ -24,7 +24,9 @@ vanity = {
         --- @type Vanity.Tab
         tab = nil,
         --- @type Vanity.Separator
-        separator = nil
+        separator = nil,
+        --- @type Vanity.Label
+        label = nil
     }
 }
 
@@ -44,6 +46,8 @@ vanity.include("widgets/tab.lua")
 vanity.include("widgets/group.lua")
 vanity.include("widgets/separator.lua")
 vanity.include("widgets/label.lua")
+vanity.include("widgets/button.lua")
+vanity.include("widgets/checkbox.lua")
 
 local testwindow = vanity.window({
     name = "Test Window"
@@ -67,10 +71,23 @@ testgroup:separator()
 testgroup:separator()
 testgroup:separator()
 testgroup:separator()
+testgroup:button({text = "Say Something.", clicked = function() lje.con_print("I say 'Hello, World!'") end})
 
 for i = 2, 10 do
     testtab:group({name = "Group " .. tostring(i)})
 end
+
+local testgroup2 = testtab:group({
+    name = "Test Group"
+})
+
+testgroup2:checkbox({
+    text = "Debug"
+})
+
+testgroup2:checkbox({
+    text = "Very long checkbox name which is supported as checkboxes use labels internally."
+})
 
 testwindow:tab({
     name = "Tab 2"

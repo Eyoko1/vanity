@@ -166,12 +166,12 @@ function WindowMT:render()
         surface.DrawLine(
             tl1,
             sectionstart,
-            x + math.floor(toplinelx),
+            x + math.floor(toplinelx) + 1,
             sectionstart
         )
         local tl2 = tabstartx + sectionwidth - 1
         surface.DrawLine(
-            x + math.floor(toplinerx),
+            x + math.floor(toplinerx) + 1,
             sectionstart,
             tl2,
             sectionstart

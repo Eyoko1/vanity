@@ -2,14 +2,13 @@
 --- @field name string
 --- @field groupaccentalpha number
 --- @
---- @field separator fun(self: Vanity.Group): Vanity.Separator
---- @field label fun(self: Vanity.Group, data: Vanity.Label.Data?): Vanity.Label
 --- @field addchild fun(self: Vanity.Group, child: Vanity.Widget): nil
 --- @field getwidth fun(self: Vanity.Group): number
 
 --- @class Vanity.Group.Data
 --- @field name string?
 
+--- @diagnostic disable
 --- @type Vanity.Group
 local GroupMT = {
     parent = nil,
@@ -20,13 +19,12 @@ local GroupMT = {
     name = "",
     groupaccentalpha = 255,
 
-    separator = function() return {} end,
-    label = function() return {} end,
     addchild = function() end,
     getwidth = function() return 0 end,
     render = function() end,
     invalidatelayout = function() end
 }
+--- @diagnostic enable
 vanity.metatables.group = GroupMT
 
 local TabMT = vanity.metatables.tab
@@ -40,6 +38,7 @@ function TabMT:group(data)
 
     group.parent = self
     group:invalidatelayout()
+    self:invalidatelayout()
     group:separator()
 
     return group
@@ -147,6 +146,4 @@ function GroupMT:invalidatelayout()
         h = h + widgetsize[2] + inset2
     end
     self.size = vanity.vector(w, math.max(h - inset2 + inset1, 25))
-
-    self.parent:invalidatelayout()
 end
