@@ -62,7 +62,7 @@ local testgroup = testtab:group({
 
 testgroup:label({text = "Hello, World!"})
 testgroup:separator()
-testgroup:label({text = "Long piece of text which should wrap around to the next line.\nNew line!\nThis-Is-A-Very-Long-Word-Which-Should-Wrap."})
+testgroup:label({text = "Long piece of text which should wrap around to the next line.\nNew line! This-Is-A-Very-Long-Word-Which-Should-Wrap-Around-To-New-Lines-In-This-Group."})
 testgroup:separator()
 testgroup:separator()
 testgroup:separator()
