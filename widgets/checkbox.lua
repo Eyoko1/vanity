@@ -6,10 +6,11 @@
 --- @
 --- @field text string
 --- @field state boolean
---- @field toggled fun(self: Vanity.Checkbox, state: boolean): nil
+--- @field toggled fun(state: boolean): nil
 --- @
 --- @field label Vanity.Label?
 --- @
+--- @field setstate fun(self: Vanity.Checkbox, state: boolean): nil
 --- @field getwidth fun(self: Vanity.Checkbox): number
 
 --- @class Vanity.Checkbox.Data
@@ -33,6 +34,7 @@ local CheckboxMT = {
 
     label = nil,
 
+    setstate = function() end,
     render = function() end,
     invalidatelayout = function() end,
     getwidth = function() return 0 end
@@ -63,6 +65,12 @@ function GroupMT:checkbox(data)
     return checkbox
 end
 
+--- @param state boolean
+--- @return nil
+function CheckboxMT:setstate(state)
+    self.state = state
+end
+
 --- @param x number
 --- @param y number
 --- @param w number
@@ -76,11 +84,13 @@ function CheckboxMT:render(x, y, w, h, parenthovered, style)
     local totaloffset = size + offset
     label:render(x + totaloffset, y, w - totaloffset, h, parenthovered, style)
 
-
     --local recty = y + ((label.size[2] - size) * 0.5) --> This is centered, however it doesn't look as good as simply using the y value
     if (parenthovered and not vanity.getfocus() and vanity.ishovered(x, y, size, size)) then
+        lje.con_print("checking " .. x)
         if (vanity.didclick()) then
-            self.state = not self.state
+            local state = not self.state
+            self.state = state
+            self.toggled(state)
         end
     end
 

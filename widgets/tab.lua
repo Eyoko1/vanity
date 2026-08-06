@@ -146,7 +146,7 @@ function TabMT:render(parentx, parenty, parentw, parenth, parenthovered, style)
 
         local sectionx = parentx + inset1
 
-        local hovered = parenthovered and vanity.ishovered(x, y, parent.sectionstart, parent.sectionend - parent.sectionstart)
+        local hovered = parenthovered and vanity.ishovered(parentx + inset1 * 2, y + h, parent.sectionstart, parent.sectionend - parent.sectionstart)
         for i, group in ipairs(self.children) do
             --- @cast group Vanity.Group
             group:render(sectionx, y, w, h, hovered, style)

@@ -292,13 +292,13 @@ hook.pre("StartCommand", "vanity/input", function()
     mousedown = input.IsMouseDown(MOUSE_LEFT)
 end)
 
-hook.pre("lje-util/render", "vanity/render", function()
+hook.pre("lje-util/postrender", "vanity/render", function()
     if (vgui.CursorVisible()) then
         maskalpha = Lerp(FrameTime() * 15, maskalpha, 0)
     else
         maskalpha = Lerp(FrameTime() * 15, maskalpha, 125)
     end
-    
+
     focused = nil
     for i, v in ipairs(vanity.windowlist) do
         v:render()

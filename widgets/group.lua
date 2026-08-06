@@ -66,7 +66,7 @@ end
 function GroupMT:render(parentx, parenty, parentw, parenth, parenthovered, style)
     local inset1 = style.inset_1
     local inset2 = style.inset_2
-    local parent = self.parent --- @cast parent Vanity.Tab
+    --local parent = self.parent --- @cast parent Vanity.Tab
     local position = self.position
     local size = self.size
     local x = parentx + position[1]
@@ -134,7 +134,7 @@ function GroupMT:invalidatelayout()
 
     local w = (window.size[1] - (inset1 * 5)) * 0.5
     local h = vanity.fontdata(style.text).size + inset1 + inset2
-    
+
     local childwidth = self:getwidth()
 
     for i, widget in ipairs(self.children) do
