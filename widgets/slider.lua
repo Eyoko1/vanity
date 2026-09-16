@@ -156,6 +156,7 @@ local function beginHold(self, kind)
     holdtarget = self
     holdkind = kind
     holdnext = CurTime() + HOLD_INITIAL_DELAY
+    vanity.__setcapture(self)
 end
 
 local function clearHold(self)
@@ -163,6 +164,9 @@ local function clearHold(self)
         holdtarget = nil
         holdkind = nil
         holdnext = 0
+        if (not (dragging and dragtarget == self)) then
+            vanity.__releasecapture(self)
+        end
     end
 end
 
@@ -307,11 +311,6 @@ function slidermt:__render(x, y, w, h)
 end
 
 function slidermt:__checkinput()
-    local x = self.__computedx
-    local y = self.__computedy
-    local w = self.__computedwidth
-    local h = self.__computedheight
-
     if (dragging and dragtarget == self) then
         if (vanity.mousedown()) then
             local mx = (vanity.mousepos())
@@ -320,15 +319,12 @@ function slidermt:__checkinput()
         else
             dragging = false
             dragtarget = nil
+            vanity.__releasecapture(self)
         end
     end
 
     if (updateHold(self)) then
         return true
-    end
-
-    if (not vanity.ishovered(x, y, w, h)) then
-        return
     end
 
     local plus = self.__plus
@@ -338,14 +334,17 @@ function slidermt:__checkinput()
         return
     end
 
-    local mx, my = vanity.mousepos()
+    local mx = (vanity.mousepos())
     local overPlus = vanity.ishovered(plus[1], plus[2], plus[3], plus[4])
     local overMinus = vanity.ishovered(minus[1], minus[2], minus[3], minus[4])
     local overTrack = vanity.ishovered(track[1], track[2], track[3], track[4])
 
-    if (overPlus or overMinus or overTrack) then
-        self.__hoverframe = FrameNumber()
+    if (not overPlus) and (not overMinus) and (not overTrack) then
+        clearHold(self)
+        return
     end
+
+    self.__hoverframe = FrameNumber()
 
     if (vanity.didclick()) then
         if (overPlus) then
@@ -356,11 +355,12 @@ function slidermt:__checkinput()
             self:setvalue(self.value - self.step, false)
             beginHold(self, "minus")
             return true
-        elseif (overTrack) then
+        else
             setFromMouseX(self, mx)
             dragging = true
             dragtarget = self
             clearHold(self)
+            vanity.__setcapture(self)
             return true
         end
     elseif (vanity.mousedown()) then
@@ -369,15 +369,14 @@ function slidermt:__checkinput()
             dragging = true
             dragtarget = self
             clearHold(self)
-            return true
-        elseif (overPlus or overMinus) then
-            if (overPlus and holdtarget ~= self) then
-                beginHold(self, "plus")
-            elseif (overMinus and holdtarget ~= self) then
-                beginHold(self, "minus")
-            end
+            vanity.__setcapture(self)
             return true
         end
+
+        if (holdtarget ~= self) then
+            beginHold(self, overPlus and "plus" or "minus")
+        end
+        return true
     else
         clearHold(self)
     end
